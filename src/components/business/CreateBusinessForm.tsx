@@ -18,6 +18,7 @@ import { Business } from './types';
     industry: string
   }
   export interface CreateBusinessFormProps {
+    isLoading: boolean
     onSave: (business: Omit<BusinessFromProps, 'id'>) => void;
     onCancel: () => void;
   }
@@ -27,7 +28,7 @@ import { Business } from './types';
     onEdit: (business: BusinessFromProps) => void;
     onDelete: (id: string) => void;
   }
-const CreateBusinessForm: React.FC<CreateBusinessFormProps> = ({onCancel, onSave}) => {
+const CreateBusinessForm: React.FC<CreateBusinessFormProps> = ({onCancel, onSave, isLoading}) => {
   const router = useRouter()
     const [business, setBusiness] = useState<Omit<BusinessFromProps, "id">>({
         name: '',
@@ -46,14 +47,9 @@ const CreateBusinessForm: React.FC<CreateBusinessFormProps> = ({onCancel, onSave
     const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSave(business);
-    // createBusiness({
-    //   name: business.name, 
-    //   description: business.description,
-    //   industry: business.industry
-    // })
-    };
+   };
 
-    const { mutate: createBusiness, isLoading } = trpc.createBusiness.useMutation({
+    const { mutate: createBusiness } = trpc.createBusiness.useMutation({
       onSuccess: (data) => {
         toast({
           title: `Business created Successfully with the name ${data.name}`,

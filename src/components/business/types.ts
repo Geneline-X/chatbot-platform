@@ -23,6 +23,18 @@ export type Business = {
     updatedAt: string;
   }[];
 };
+
+export type ChatbotProps = {
+  id: string;
+  businessId: string;
+  name: string;
+  systemInstruction: string | null;
+  urlsToBusinessWebsite: string | null;
+  customConfigurations: Prisma.JsonValue;
+  createAt: string;
+  updatedAt: string;
+}
+
   export interface CreateBusinessFormProps {
     onSave: (business: Omit<Business, 'id'>) => void;
     onCancel: () => void;

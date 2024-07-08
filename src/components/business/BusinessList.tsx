@@ -2,7 +2,7 @@ import React from 'react';
 import { Trash, Loader2 } from 'lucide-react'; // Ensure you have the appropriate icons
 import { trpc } from '@/app/_trpc/client';
 import { useBusiness } from './BusinessContext'; // Import the useBusiness hook
-
+import { BusinessFromProps } from './CreateBusinessForm';
 import { Business } from './types';
 
 interface BusinessListProps {
@@ -30,7 +30,7 @@ const BusinessList: React.FC<BusinessListProps> = ({ businesses, onEdit, onDelet
             <div className="mt-auto flex justify-between items-center">
               <button
                 onClick={(e) => {
-                  e.stopPropagation(); // Prevent click from bubbling to the card's onClick
+                  e.stopPropagation(); 
                   onEdit(business);
                 }}
                 className="text-blue-500 hover:text-blue-600"
@@ -39,7 +39,7 @@ const BusinessList: React.FC<BusinessListProps> = ({ businesses, onEdit, onDelet
               </button>
               <button
                 onClick={(e) => {
-                  e.stopPropagation(); // Prevent click from bubbling to the card's onClick
+                  e.stopPropagation();
                   onDelete(business.id);
                 }}
                 className="text-red-500 hover:text-red-600"

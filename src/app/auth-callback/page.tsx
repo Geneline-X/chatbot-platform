@@ -32,7 +32,7 @@ const Page = () => {
   return (
     <div className='w-full mt-24 justify-center'>
         <div className="flex flex-col items-center gap-2">
-            {error? null : <Loader2 className='h-8 animate-spin text-zinc-800'/>}
+            {error? null : <Loader2 className='h-8 animate-spin  text-blue-800'/>}
             <h3 className='font-semibold text-2xl text-center'>
                     {error ? "Session Expired" : "Setting up your Account..."}
             </h3>
@@ -43,7 +43,7 @@ const Page = () => {
               {error? (
                 <Link href="/sign-in" className={buttonVariants({
                   size: "lg"
-                 })}>Sign in <ArrowRight className=' ml-2 h-4 w-4'/></Link>
+                 })}>Sign in <ArrowRight className='ml-2 h-4 w-4'/></Link>
               ): null}
         </div>
     </div>

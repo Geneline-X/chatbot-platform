@@ -35,13 +35,13 @@ export const getFileType = (fileName: string): {extension:string, name:string} =
   export const getEndpointByFileType = (fileType: string): string => {
     switch (fileType) {
       case 'image':
-        return 'http://localhost:3800/file-upload/image';
+        return 'http://localhost:3800/chatbot-upload/image';
       case 'video':
-        return 'http://localhost:3800/file-upload/video';
+        return 'http://localhost:3800/chatbot-upload/video';
       case 'audio':
-        return 'http://localhost:3800/file-upload/audio';
+        return 'http://localhost:3800/chatbot-upload/audio';
       case 'pdf':
-        return 'http://localhost:3800/file-upload/pdf';
+        return 'http://localhost:3800/chatbot-upload/pdf';
       default:
         throw new Error('Unsupported file type');
     }
@@ -50,6 +50,56 @@ export const getFileType = (fileName: string): {extension:string, name:string} =
   type UploadTypes = {
     createdFile:any
     uploadStatus: "SUCCESS" | "FAILED"
+}
+
+type MakeRequestType = {
+  endpoint: string,
+  file: any,
+  extension:string
+  chatbotName:string | undefined
+  userId:string | undefined
+}
+export const makeRequest = async({endpoint, file, extension, chatbotName, userId}: MakeRequestType) => {
+  try {
+    // const isFileExists = await db.file.findFirst({ where: { key: file.key } });
+    // if (isFileExists) return;
+
+    // const createdFile = await db.file.create({
+    //   data: {
+    //     key: file.key,
+    //     name: file.name,
+    //     userId: userId,
+    //     url: `https://uploadthing-prod.s3.us-west-2.amazonaws.com/${file.key}`,
+    //     uploadStatus: "PROCESSING",
+    //   },
+    // });
+
+    // console.log(createdFile)
+
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ 
+        createdFile: file,
+        mimeType: extension,
+        chatbotName: chatbotName 
+      }),
+    });
+
+    if (response.ok) {
+      await updateStatusInDb({ uploadStatus: "SUCCESS", createdFile: file });
+    } else {
+      throw new Error("Failed to process file");
+    }
+
+    const data = await response.json();
+    console.log("Data from cloud functions:", data);
+
+  } catch (error) {
+    console.log(error)
+  }
 }
 export const updateStatusInDb = async({uploadStatus, createdFile}: UploadTypes) => {
    try {

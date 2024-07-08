@@ -32,7 +32,7 @@ const Main = () => {
     }
   });
 
-  const { mutate: createBusiness } = trpc.createBusiness.useMutation({
+  const { mutate: createBusiness, isLoading:creatingLoading } = trpc.createBusiness.useMutation({
     onSuccess: () => {
       utils.getAllBusinesses.invalidate();
     }
@@ -70,7 +70,7 @@ const Main = () => {
   return (
     <div className="max-w-3xl mx-auto mt-8">
       {isCreating ? (
-        <CreateBusinessForm onSave={handleSaveBusiness} onCancel={handleCancel} />
+        <CreateBusinessForm isLoading={creatingLoading} onSave={handleSaveBusiness} onCancel={handleCancel} />
       ) : (
         <div className="flex justify-end mb-4">
           <Button

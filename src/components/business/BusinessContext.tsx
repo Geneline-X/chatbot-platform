@@ -1,7 +1,9 @@
-"use client";
+"use client"
+// BusinessContext.tsx
+
 import React, { ReactNode, createContext, useState, useContext, useEffect } from 'react';
 import { trpc } from '@/app/_trpc/client';
-import { Business } from './types';
+import { Business, ChatbotProps } from './types';
 
 interface BusinessContextType {
   currentBusiness: Business | null;
@@ -10,12 +12,26 @@ interface BusinessContextType {
   isLoading: boolean;
 }
 
-const BusinessContext = createContext<BusinessContextType | null >(null);
+interface ChatbotContextType {
+  currentChatbot: ChatbotProps | null;
+  setCurrentChatbot: (chatbot: ChatbotProps) => void;
+}
+
+const BusinessContext = createContext<BusinessContextType | null>(null);
+const ChatbotContext = createContext<ChatbotContextType | null>(null);
 
 export const useBusiness = () => {
   const context = useContext(BusinessContext);
   if (!context) {
     throw new Error('useBusiness must be used within a BusinessProvider');
+  }
+  return context;
+};
+
+export const useChatbot = () => {
+  const context = useContext(ChatbotContext);
+  if (!context) {
+    throw new Error('useChatbot must be used within a ChatbotProvider');
   }
   return context;
 };
@@ -35,8 +51,24 @@ export const BusinessProvider: React.FC<BusinessProviderProps> = ({ children }) 
   }, [businesses, currentBusiness]);
 
   return (
+    //@
     <BusinessContext.Provider value={{ currentBusiness, setCurrentBusiness, businesses: businesses ?? null, isLoading }}>
-      {children}
+      <ChatbotProvider>
+        {children}
+      </ChatbotProvider>
     </BusinessContext.Provider>
+  );
+};
+
+interface ChatbotProviderProps {
+    children: ReactNode;
+  }
+export const ChatbotProvider: React.FC<ChatbotProviderProps> = ({ children }) => {
+  const [currentChatbot, setCurrentChatbot] = useState<ChatbotProps | null>(null);
+
+  return (
+    <ChatbotContext.Provider value={{ currentChatbot, setCurrentChatbot }}>
+      {children}
+    </ChatbotContext.Provider>
   );
 };

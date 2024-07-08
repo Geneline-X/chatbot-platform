@@ -1,12 +1,16 @@
 "use client"
 import { Input } from '@/components/ui/input'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
-import { Label  } from '@/components/ui/label'
+import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import ConfigurationForm from './ConfigurationForm'
-import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
-import { useBusiness } from '../business/BusinessContext'
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { useBusiness, useChatbot } from '../business/BusinessContext'
+import { trpc } from '@/app/_trpc/client'
+import { Loader2 } from 'lucide-react';
+import { toast } from '../ui/use-toast';
+import { useRouter } from 'next/navigation'
 
 interface Props {
     onSave: () => void
@@ -20,19 +24,20 @@ export interface ConfigurableParameters {
     maxOutputLength: number;
     responseCandidates: number;
 }
+
 const ChatbotForm = ({ onSave, onCancel }: Props) => {
   const [chatbot, setChatbot] = useState<{
     name: string;
-    businessId:string
-    systemInstruction:string
-    urlsToBusinessWebsite:string
-    customConfigurations:ConfigurableParameters | null
+    businessId: string;
+    systemInstruction: string;
+    urlsToBusinessWebsite: string;
+    customConfigurations: ConfigurableParameters | null;
   }>({
-  name: "",
-  businessId: "",
-  systemInstruction: "",
-  urlsToBusinessWebsite: "",
-  customConfigurations: null
+    name: "",
+    businessId: "",
+    systemInstruction: "",
+    urlsToBusinessWebsite: "",
+    customConfigurations: null,
   })
 
   const [configParams, setConfigParams] = useState<ConfigurableParameters>({
@@ -44,20 +49,25 @@ const ChatbotForm = ({ onSave, onCancel }: Props) => {
     responseCandidates: 1,
   });
 
-  const [name, setName] = useState('')
-  const [businessId, setBusinessId] = useState('')
-  const [systemInstruction, setSystemInstruction] = useState('')
-  const [urlsToBusinessWebsite, setUrlsToBusinessWebsite] = useState('')
-  const [customConfigurations, setCustomConfigurations] = useState({})
-  const { currentBusiness } = useBusiness()
-  console.log("this is the current business: ", currentBusiness)
   const [isOpen, setIsOpen] = useState<boolean>(false)
-  const handleSubmit = () => {
-    // Handle form submission logic
-    onSave()
-  }
-  const handleInputChange = () => {
+  const { currentBusiness } = useBusiness()
+  const { setCurrentChatbot } = useChatbot()
+  const router = useRouter()
 
+  useEffect(() => {
+    if (currentBusiness) {
+      setChatbot((prevChatbot) => ({
+        ...prevChatbot,
+        businessId: currentBusiness.id
+      }));
+    }
+  }, [currentBusiness]);
+
+  const handleInputChange = (field: keyof typeof chatbot, value: any) => {
+    setChatbot((prevChatbot) => ({
+      ...prevChatbot,
+      [field]: value,
+    }));
   }
 
   const handleConfigChange = (param: keyof ConfigurableParameters, value: any) => {
@@ -67,21 +77,47 @@ const ChatbotForm = ({ onSave, onCancel }: Props) => {
     }));
   };
 
+  //@ts-ignore
+  const { mutate: createChatbot, isLoading } = trpc.createChatbot.useMutation({
+    onSuccess: (data) => {
+      toast({
+        title: `Chatbot created successfully with the name ${data.name}`,
+      })
+      onSave();
+      setCurrentChatbot(data)
+      router.push("/chatbot-dashboard/design")
+    },
+    onError: (error:any) => {
+      console.error('Error creating chatbot:', error);
+    }
+  });
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    createChatbot({
+      ...chatbot,
+      customConfigurations: configParams
+    })
+    console.log("this is the chatbot data: ", chatbot)
+  }
+
   return (
     <div className="p-4 bg-white shadow rounded">
       <div className='flex justify-between'>
-      <h2 className="text-xl font-semibold mb-4">Create/Edit Chatbot</h2>
-      <div className="mb-4">
-          <Dialog  open={isOpen} onOpenChange={(v) => {
-                if(!v){
-                    setIsOpen(v)
-                }
-            }}>
-            <DialogTrigger asChild onClick={() => setIsOpen(true)}>
-                <Button>Settings</Button>
+        <h2 className="text-xl font-semibold mb-4">Create/Edit Chatbot</h2>
+        <div className="mb-4">
+          <Dialog open={isOpen} onOpenChange={(v) => setIsOpen(v)}>
+            <DialogTrigger asChild>
+              <Button onClick={() => setIsOpen(true)}>Settings</Button>
             </DialogTrigger>
             <DialogContent>
-                <ConfigurationForm/>
+              <DialogTitle>
+              
+              </DialogTitle>
+              <ConfigurationForm 
+              configParams={configParams} 
+              onConfigChange={handleConfigChange} 
+              />
             </DialogContent>
           </Dialog>
         </div>
@@ -91,9 +127,8 @@ const ChatbotForm = ({ onSave, onCancel }: Props) => {
           <Label>Name</Label>
           <Input
             type="text"
-            width={"full"}
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            value={chatbot.name}
+            onChange={(e) => handleInputChange('name', e.target.value)}
           />
         </div>
         <div className="mb-4">
@@ -101,24 +136,24 @@ const ChatbotForm = ({ onSave, onCancel }: Props) => {
           <Textarea
             minRows={4}
             placeholder='Needed a customer service chatbot'
-            value={systemInstruction}
-            onChange={(e) => setSystemInstruction(e.target.value)}
+            value={chatbot.systemInstruction}
+            onChange={(e) => handleInputChange('systemInstruction', e.target.value)}
           />
         </div>
         <div className="mb-4">
           <Label>URLs to Business Website</Label>
           <Input
             type="text"
-            className="mt-1 block w-full border border-gray-300 rounded p-2"
-            value={urlsToBusinessWebsite}
-            onChange={(e) => setUrlsToBusinessWebsite(e.target.value)}
+            value={chatbot.urlsToBusinessWebsite}
+            onChange={(e) => handleInputChange('urlsToBusinessWebsite', e.target.value)}
           />
         </div>
         <div className="flex justify-between">
           <Button type="button" className="p-2 bg-gray-500 text-white rounded" onClick={onCancel}>
             Cancel
           </Button>
-          <Button type="submit">
+          <Button type="submit" disabled={isLoading}>
+            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Save
           </Button>
         </div>

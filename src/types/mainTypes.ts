@@ -6,6 +6,8 @@ export interface Chatbot {
     systemInstruction: string;
     urlsToBusinessWebsite: string;
     customConfigurations: Record<string, any>;
+    createAt:string;
+    updatedAt:string
   }
   
   // Types for Message

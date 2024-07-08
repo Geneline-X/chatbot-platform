@@ -55,6 +55,25 @@ export const appRouter = router({
 
       return newChatbot;
    }),
+   getChatbot: PrivateProcedure.input(z.object({
+    chatbotId: z.string()
+   })).query(async({ctx, input}) => {
+
+    const { chatbotId } = input;
+
+    const chatbot = await db.chatbot.findFirst({
+      where: { id: chatbotId },
+      include: {
+        file: true,
+        message: true,
+        brands: true,
+        urlFiles: true,
+      },
+    });
+
+    return chatbot;
+   }),
+
    getAllChatbots: PrivateProcedure.input(z.object({
     businessId: z.string()
    })).mutation(async({ctx, input}) => {
@@ -73,6 +92,37 @@ export const appRouter = router({
 
     return chatbots;
    }),
+
+   getChatbotFiles: PrivateProcedure.input(z.object({
+    chatbotId: z.string(),
+  })).query(async ({ input }) => {
+    const { chatbotId } = input;
+
+    return await db.file.findMany({
+      where: {
+        chatbotId,
+      },
+      include: {
+        _count: {
+          select: {
+            message: true,
+          },
+        },
+      },
+    });
+  }),
+   getChatbotMessages: PrivateProcedure.input(z.object({
+    chatbotId: z.string(),
+  })).query(async ({ input }) => {
+    const { chatbotId } = input;
+
+    return await db.message.findMany({
+      where: {
+        chatbotId,
+      },
+    });
+  }),
+
    updateChatbot: PrivateProcedure.input(z.object({
     id: z.string(),
     name: z.string().optional(),
@@ -191,6 +241,18 @@ export const appRouter = router({
 
     return newBrand;
   }),
+  getBrand: PrivateProcedure.input(z.object({
+   chatbotId: z.string()
+  })).query(async({ctx, input}) => {
+    const { chatbotId } = input
+
+    const brand = await db.brand.findFirst({
+      where: { chatbotId }
+    })
+
+    return brand
+  }),
+
   getAllBrands: PrivateProcedure.input(z.object({
     chatbotId: z.string()
   })).mutation(async({input}) => {
