@@ -33,9 +33,33 @@ const nextConfig = {
             port: '',
             pathname: '/*',
           },
+          {
+            protocol: 'https',
+            hostname: 'utfs.io',
+            port: '',
+            pathname: '/f/**',
+          },
 
         ],
-      },
+    },
+    reactStrictMode: true,
+    async headers() {
+      return [
+        {
+          source: '/chat-widget',
+          headers: [
+            {
+              key: 'X-Frame-Options',
+              value: 'ALLOW-FROM *' // Allow embedding from any domain (modify as needed for security)
+            },
+            {
+              key: 'Content-Security-Policy',
+              value: "frame-ancestors 'self' *;" // Modify as needed for security
+            }
+          ]
+        }
+      ]
+    }
 };
 
 export default nextConfig;

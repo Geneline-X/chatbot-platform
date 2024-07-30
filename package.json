@@ -58,6 +58,7 @@
     "firebase": "^10.12.2",
     "firebase-admin": "^11.11.1",
     "firebase-functions": "^5.0.1",
+    "framer-motion": "^11.3.17",
     "highlight.js": "^11.9.0",
     "html-to-jsx": "^0.0.4",
     "html2canvas": "^1.4.1",

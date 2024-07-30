@@ -23,9 +23,11 @@ const Sidebar = () => {
          Design
       </Link>
       )}
-      <Link href="/chatbot-dashboard/train" className="hover:bg-blue-300 p-3 font-semibold text-lg rounded transition-colors duration-200 flex items-center space-x-3">
+      {currentChatbot && (
+        <Link href="/chatbot-dashboard/train" className="hover:bg-blue-300 p-3 font-semibold text-lg rounded transition-colors duration-200 flex items-center space-x-3">
          Train Chatbot
-      </Link>
+       </Link>
+      )}
       <Link href="/chatbot-dashboard/settings" className="hover:bg-blue-300 p-3 font-semibold text-lg rounded transition-colors duration-200 flex items-center space-x-3">
         Settings
       </Link>

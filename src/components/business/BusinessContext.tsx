@@ -3,7 +3,7 @@
 
 import React, { ReactNode, createContext, useState, useContext, useEffect } from 'react';
 import { trpc } from '@/app/_trpc/client';
-import { Business, ChatbotProps } from './types';
+import { Business, ChatbotProps, Brand } from './types';
 
 interface BusinessContextType {
   currentBusiness: Business | null;
@@ -15,6 +15,8 @@ interface BusinessContextType {
 interface ChatbotContextType {
   currentChatbot: ChatbotProps | null;
   setCurrentChatbot: (chatbot: ChatbotProps) => void;
+  // currentBrand: Brand | null;
+  // setCurrentBrand: (brand: Brand | null) => void;
 }
 
 const BusinessContext = createContext<BusinessContextType | null>(null);
@@ -43,7 +45,7 @@ interface BusinessProviderProps {
 export const BusinessProvider: React.FC<BusinessProviderProps> = ({ children }) => {
   const [currentBusiness, setCurrentBusiness] = useState<Business | null>(null);
   const { data: businesses, isLoading } = trpc.getAllBusinesses.useQuery();
-
+  
   useEffect(() => {
     if (businesses && businesses.length > 0 && !currentBusiness) {
       setCurrentBusiness(businesses[0]);
@@ -51,7 +53,7 @@ export const BusinessProvider: React.FC<BusinessProviderProps> = ({ children }) 
   }, [businesses, currentBusiness]);
 
   return (
-    //@
+    //@ts-ignore
     <BusinessContext.Provider value={{ currentBusiness, setCurrentBusiness, businesses: businesses ?? null, isLoading }}>
       <ChatbotProvider>
         {children}
@@ -65,9 +67,23 @@ interface ChatbotProviderProps {
   }
 export const ChatbotProvider: React.FC<ChatbotProviderProps> = ({ children }) => {
   const [currentChatbot, setCurrentChatbot] = useState<ChatbotProps | null>(null);
+  const [currentBrand, setCurrentBrand] = useState<Brand | null>(null);
+
+  // useEffect(() => {
+  //   if (currentChatbot) {
+  //     trpc.getBrand.useQuery({ chatbotId: currentChatbot.id }, {
+  //       onSuccess: (data) => {
+  //         setCurrentBrand(data);
+  //       },
+  //       onError: (error) => {
+  //         console.error("Failed to fetch brand data", error);
+  //       }
+  //     });
+  //   }
+  // }, [currentChatbot]);
 
   return (
-    <ChatbotContext.Provider value={{ currentChatbot, setCurrentChatbot }}>
+    <ChatbotContext.Provider value={{ currentChatbot, setCurrentChatbot}}>
       {children}
     </ChatbotContext.Provider>
   );

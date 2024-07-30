@@ -112,15 +112,39 @@ export const appRouter = router({
     });
   }),
    getChatbotMessages: PrivateProcedure.input(z.object({
-    chatbotId: z.string(),
+    limit: z.number().min(1).max(100).nullish(),
+    cursor: z.string().nullish(),
+    chatbotId: z.string() || z.undefined(),
   })).query(async ({ input }) => {
-    const { chatbotId } = input;
+    const { chatbotId, cursor } = input;
+    const limit = input.limit ?? 20
 
-    return await db.message.findMany({
+    const messages = await db.message.findMany({
       where: {
         chatbotId,
       },
+      orderBy: {
+        createAt: "desc"
+      },
+      cursor: cursor ? {id: cursor} : undefined,
+      select: {
+        id: true,
+        isUserMessage: true,
+        chatbotId:true,
+        createAt: true,
+        text: true
+    }
     });
+
+    let nextCursor: typeof cursor | undefined = undefined
+    if(messages.length > limit){
+        const nextItem = messages.pop()
+        nextCursor = nextItem?.id
+    }
+    return {
+      messages,
+      nextCursor
+    }
   }),
 
    updateChatbot: PrivateProcedure.input(z.object({
@@ -226,20 +250,37 @@ export const appRouter = router({
     name: z.string(),
     logo: z.string().optional(),
     theme: z.any().optional(),
+    brandId: z.string().optional()
   })).mutation(async({input}) => {
 
-    const { chatbotId, name, logo, theme } = input;
+    const { chatbotId, name, logo, theme, brandId } = input;
 
-    const newBrand = await db.brand.create({
-      data: {
-        chatbotId,
-        name,
-        logo,
-        theme,
-      },
-    });
+    if(brandId){
+      const newBrand = await db.brand.update({
+        where: {id: brandId},
+        data: {
+          chatbotId,
+          name,
+          logo,
+          theme,
+        },
+      });
 
-    return newBrand;
+      return newBrand
+    }else{
+      const newBrand = await db.brand.create({
+        data: {
+          chatbotId,
+          name,
+          logo,
+          theme,
+        },
+      });
+  
+      return newBrand;
+    }
+    
+    
   }),
   getBrand: PrivateProcedure.input(z.object({
    chatbotId: z.string()

@@ -2,18 +2,14 @@
 import React, { useEffect, useState } from 'react'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { 
-    Select,
-    SelectTrigger,
-    SelectContent,
-    SelectItem,
-    SelectValue
-} from '@/components/ui/select'
+import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@/components/ui/select'
 
 type AdvancedSettingsProps = {
-  setAdvancedProps: (advanced: any | null) => void
+  formData: any
+  updateFormData: (key: string, value: any) => void
 }
-const AdvancedSettings:React.FC<AdvancedSettingsProps> = ({setAdvancedProps}) => {
+
+const AdvancedSettings: React.FC<AdvancedSettingsProps> = ({ formData, updateFormData }) => {
   const [advanced, setAdvanced] = useState({
     customCSS: '',
     chatHistory: 'enabled',
@@ -21,16 +17,18 @@ const AdvancedSettings:React.FC<AdvancedSettingsProps> = ({setAdvancedProps}) =>
   })
 
   useEffect(() => {
-    if(advanced){
-      setAdvancedProps(advanced)
+    if (formData.advanced) {
+      setAdvanced(formData.advanced)
     }
-  }, [advanced, setAdvancedProps])
-  
+  }, [formData.advanced])
+
   const handleInputChange = (field: keyof typeof advanced, value: string) => {
-    setAdvanced((prevAdvanced) => ({
-      ...prevAdvanced,
+    const updatedAdvanced = {
+      ...advanced,
       [field]: value,
-    }))
+    }
+    setAdvanced(updatedAdvanced)
+    updateFormData('advanced', updatedAdvanced)
   }
 
   return (

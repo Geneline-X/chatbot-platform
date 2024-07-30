@@ -3,15 +3,15 @@
 import React, { useState, useCallback } from 'react';
 import DropZone, { DropzoneState } from "react-dropzone";
 import { Cloud, Loader2 } from 'lucide-react';
-import { useUploadThing, uploadFiles } from '@/lib/uploadthing';
+import { useUploadThing } from '@/lib/uploadthing';
 import { toast } from '../ui/use-toast';
 import { useRouter } from 'next/navigation';
-import { getEndpointByFileType, getFileType, makeRequest, updateStatusInDb } from '@/lib/elegance';
 import { Progress } from '../ui/progress';
 import { useBusiness, useChatbot } from '../business/BusinessContext';
+import { useFileHelpers } from '@/lib/hooks/useFileHelpers';
 
 interface FileUploadDropzoneProps {
-  isSubscribed: boolean;
+  isSubscribed?: boolean;
 }
 
 const FileUploadDropzone: React.FC<FileUploadDropzoneProps> = ({ isSubscribed }) => {
@@ -22,6 +22,8 @@ const FileUploadDropzone: React.FC<FileUploadDropzoneProps> = ({ isSubscribed })
   const [uploadProgress, setUploadProgress] = useState<number>(0)
   const [isProcessing, setIsProcessing] = useState<boolean>(false)
   const [isUploading, setIsUploading] = useState(false);
+
+  const { getFileType, getEndpointByFileType, makeRequest } = useFileHelpers();
 
   
   const { startUpload } = useUploadThing(false ? 'proPlanUploader' : 'freePlanUploader', {

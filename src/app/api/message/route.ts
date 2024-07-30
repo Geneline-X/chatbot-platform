@@ -5,7 +5,7 @@ import { NextRequest } from "next/server";
 import { StreamingTextResponse } from "ai"
 import { ReadableStream } from "web-streams-polyfill/ponyfill";
 import { llm,genAI } from "@/lib/gemini";
-//import { cleanedHtmlText, cosineSimilaritySearch } from "@/lib/elegance";
+import { cosineSimilaritySearch, generateSystemInstruction } from "@/lib/elegance";
 import { PDFLoader } from "langchain/document_loaders/fs/pdf";
 import { Prisma } from "@prisma/client";
 export const maxDuration = 300
@@ -22,6 +22,7 @@ export const POST = async(req: NextRequest) => {
     
         if(!userId) return new Response("Unauthorized", {status: 401})
 
+          console.log("this is the body: ", body)
         const { chatbotId ,message, isUrlFile } = SendMessageValidators.parse(body)
 
         const prevMessages = await db.message.findMany({
@@ -47,9 +48,10 @@ export const POST = async(req: NextRequest) => {
                 isUserMessage: true,
                 userId,
                 chatbotId,
-            }
+             }
           })
 
+          console.log("This is the created Message: ", createMessage)
           const chatbot = await db.chatbot.findFirst({
             where: { id: chatbotId },
             include: {
@@ -59,9 +61,10 @@ export const POST = async(req: NextRequest) => {
               urlFiles: true,
             },
           });
-
+          
+          const { contexts } = await cosineSimilaritySearch({message, chatbot})
           const config = chatbot?.customConfigurations as Prisma.JsonObject
-       
+           
           const chatConfigObject = {
             maxOutputTokens: config?.maxOutputTokens as number || 2040,
             candidateCount: config?.responseCandidates as number,
@@ -70,14 +73,14 @@ export const POST = async(req: NextRequest) => {
             topK: config?.topK as number,
             topP: config?.topP as number
           }
-
-         
-          console.log("this is the chabot data: ", chatbot)
-
+ 
+          const systemInstructionFromAI = await generateSystemInstruction(chatbot?.systemInstruction as string)
+         console.log(chatbot?.systemInstruction)
+         console.log(systemInstructionFromAI)
           const llm = genAI.getGenerativeModel({
             model:"gemini-1.5-flash",
-            systemInstruction: chatbot?.systemInstruction as string
-        })
+            systemInstruction: systemInstructionFromAI
+           })
         
         
           let chat: any;
@@ -88,13 +91,13 @@ export const POST = async(req: NextRequest) => {
               });
           }else{
               chat = llm.startChat({
-                history: formattedPrevMessages,
+               // chathistory should be here
                 generationConfig: chatConfigObject
             });
         }
         const pageText = ''
         // find a context //
-        const msg = `${message} ${pageText}`;
+        const msg = `${message} ${contexts}`;
         // send the stream to the frontend automatically //
         const resultFromChat = await chat.sendMessageStream(msg);
         let text = ''
@@ -111,10 +114,12 @@ export const POST = async(req: NextRequest) => {
                       text,
                       isUserMessage: false,
                       chatbotId,
+                      fileId:'',
                       userId,
                     },
                   });
-                
+                  console.log("This is the created Stream Message: ", streamMessage)
+                  console.log("this is the response: ", text)
                   controller.close();
               } catch (error) {
               // Handle errors
@@ -124,10 +129,12 @@ export const POST = async(req: NextRequest) => {
             }
           }
         })
-
-      return  new StreamingTextResponse(responseStream);
-
-    } catch (error) {
         
+       return  new StreamingTextResponse(responseStream);
+       
+    } catch (error) {
+      console.log(error)
+    
+      return new Response(JSON.stringify({message: error}), {status: 500})
     }
 }

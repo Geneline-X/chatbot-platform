@@ -1,5 +1,5 @@
 "use client"
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs'
 import 'react-tabs/style/react-tabs.css'
 import LogoSettings from './LogoSettings'
@@ -12,20 +12,49 @@ import { trpc } from '@/app/_trpc/client'
 import { useChatbot } from '../business/BusinessContext'
 import { toast } from '../ui/use-toast'
 import { useRouter } from 'next/navigation'
+import { Loader2 } from 'lucide-react'
+import useChatbotConfig from '@/lib/hooks/useChatbotConfig'
 
 const Main = () => {
 
-  const { currentChatbot } = useChatbot()
+  
+  const [formData, setFormData] = useState({
+    logo: '',
+    theme: {
+      primaryColor: '#000000',
+      secondaryColor: '#FFFFFF',
+      chatBubbleUserColor: '#E0E0E0',
+      chatBubbleBotColor: '#007BFF',
+      backgroundColor: '#F0F0F0',
+      font: 'Arial',
+      fontSize: '14px'
+    },
+    widget: {
+      position: 'bottom-right',
+      size: 'medium',
+      welcomeMessage: 'Hi! How can I help you today?',
+      botAvatar: ''
+    },
+    behavior: {
+      showTypingIndicator: true,
+      messageDelay: 1000,
+      autoRespondingHours: '9am-5pm'
+    },
+    advanced: {
+      customCSS: '',
+      chatHistory: 'enabled',
+      gdprCompliance: 'enabled'
+    }
+  })
 
-  const [logo, setLogo] = useState<string | undefined>(undefined)
-  const [theme, setTheme] = useState<any>(null)
-  const [widget, setWidget] = useState<any>(null)
-  const [behavior, setBehavior] = useState<any>(null)
-  const [advanced, setAdvanced] = useState<any>(null)
-
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+   
   const router = useRouter()
   const createBrand = trpc.createBrand.useMutation()
 
+  const { currentChatbot } = useChatbot()
+  const { config } = useChatbotConfig(currentChatbot?.id ?? undefined)
+  console.log(config)
   const handleSave = () => {
     
     if (!currentChatbot) {
@@ -36,37 +65,48 @@ const Main = () => {
       router.push("/chatbot-dashboard/chatbots")
       return
     }
-
+    
     const input = {
       chatbotId: currentChatbot?.id,
       name: currentChatbot?.name,
-      logo,
+      brandId: config?.id,
+      logo: formData.logo,
       theme: {
-        theme,
-        widget,
-        behavior,
-        advanced
+        theme: formData.theme,
+        widget: formData.widget,
+        behavior: formData.behavior,
+        advanced: formData.advanced
       }
     }
     console.log("This is the values of the chatbot: ", input)
 
-    // createBrand.mutate(input, {
-    //   onSuccess: (data) => {
-    //     console.log('Brand saved successfully', data)
-    //     // Additional success handling if needed
-    //     toast({
-    //       title: "Brand saved successfully"
-    //     })
-    //   },
-    //   onError: (error) => {
-    //     console.error('Error saving brand', error)
-    //     // Additional error handling if needed
-    //   }
-    // })
+    setIsLoading(true)
+    createBrand.mutate(input, {
+      onSuccess: (data) => {
+        console.log('Brand saved successfully', data)
+        toast({
+          title: "Brand saved successfully"
+        })
+       
+      },
+      onError: (error) => {
+        console.error('Error saving brand', error)
+      },
+      onSettled: () => {
+        setIsLoading(false)
+      }
+    })
   }
 
   const handleCancel = () => {
     // Handle cancel logic
+  }
+
+  const updateFormData = (key: string, value: any) => {
+    setFormData(prev => ({
+      ...prev,
+      [key]: value
+    }))
   }
 
   return (
@@ -82,25 +122,26 @@ const Main = () => {
         </TabList>
 
         <TabPanel>
-          <LogoSettings setLogoUrl={setLogo}/>
+          <LogoSettings formData={formData} updateFormData={updateFormData} />
         </TabPanel>
         <TabPanel>
-          <ThemeSettings setThemeProps={setTheme}/>
+          <ThemeSettings formData={formData} updateFormData={updateFormData} />
         </TabPanel>
         <TabPanel>
-          <WidgetSettings setWidgetProps={setWidget}/>
+          <WidgetSettings formData={formData} updateFormData={updateFormData} />
         </TabPanel>
         <TabPanel>
-          <BehaviorSettings setBehaviorProps={setBehavior}/>
+          <BehaviorSettings formData={formData} updateFormData={updateFormData} />
         </TabPanel>
         <TabPanel>
-          <AdvancedSettings setAdvancedProps={setAdvanced}/>
+          <AdvancedSettings formData={formData} updateFormData={updateFormData} />
         </TabPanel>
+
       </Tabs>
 
       <div className="flex justify-end mt-4">
         <Button className="mr-2" variant={"secondary"} onClick={handleCancel}>Cancel</Button>
-        <Button onClick={handleSave}>Save</Button>
+        <Button onClick={handleSave}>{isLoading ? <Loader2 className='h-4 w-4 animate-spin'/> : 'Save'}</Button>
       </div>
     </div>
   )

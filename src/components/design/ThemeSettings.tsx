@@ -4,9 +4,11 @@ import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 
 type ThemeSettingsProps = {
-  setThemeProps: (theme: any) => void
+  formData: any
+  updateFormData: (key: string, value: any) => void
 }
-const ThemeSettings: React.FC<ThemeSettingsProps> = ({setThemeProps}) => {
+
+const ThemeSettings: React.FC<ThemeSettingsProps> = ({ formData, updateFormData }) => {
   const [theme, setTheme] = useState({
     primaryColor: '#000000',
     secondaryColor: '#FFFFFF',
@@ -18,17 +20,18 @@ const ThemeSettings: React.FC<ThemeSettingsProps> = ({setThemeProps}) => {
   })
 
   useEffect(() => {
-    if(theme){
-      setThemeProps(theme)
+    if (formData.theme) {
+      setTheme(formData.theme)
     }
-  }, [theme, setThemeProps])
+  }, [formData.theme])
 
   const handleInputChange = (field: keyof typeof theme, value: string) => {
-    setTheme((prevTheme) => ({
-      ...prevTheme,
+    const updatedTheme = {
+      ...theme,
       [field]: value,
-    }))
-    
+    }
+    setTheme(updatedTheme)
+    updateFormData('theme', updatedTheme)
   }
 
   return (

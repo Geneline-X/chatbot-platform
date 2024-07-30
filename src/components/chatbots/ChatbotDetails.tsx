@@ -1,5 +1,5 @@
 "use client"
-import React from 'react'
+import React, {useState} from 'react'
 import MessagesList from "../MessageList"
 import FilesList from "../FilesList"
 import Configurations from "../Configurations"
@@ -9,10 +9,15 @@ import { useRouter } from 'next/navigation'
 import { Button, buttonVariants } from '../ui/button'
 import { toast } from '../ui/use-toast'
 import Link from 'next/link'
+import ExportChatbotModal from './ExportChatbotModal'
+import { Loader2 } from 'lucide-react'
 
 const ChatbotDetails = ({ chatbot, onBack }: ChatbotDetailsProps) => {
   const router = useRouter()
   const { currentChatbot, setCurrentChatbot } = useChatbot()
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [embedCode, setEmbedCode] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleCustomizeClick = () => {
     setCurrentChatbot(chatbot)
@@ -31,6 +36,20 @@ const ChatbotDetails = ({ chatbot, onBack }: ChatbotDetailsProps) => {
     router.push("/chatbot-dashboard/train")
   }
 
+  const handleChatbotExport = async() => {
+    try {
+      toast({
+        title: "Chatbot exported publicly",
+        description: "Now anyone with the url can access it"
+      })
+      setIsModalOpen(true);
+      router.push(`/chatbot/${chatbot.id}`)
+      setEmbedCode(`${process.env.NEXT_PUBLIC_ABSOLUTE_URL}/chatbot/${chatbot.id}`);
+      
+    } catch (error) {
+      console.log(error)
+    }
+  }
   return (
     <div className="p-6 bg-white rounded-lg shadow-md">
       <div className='flex justify-between'>
@@ -40,13 +59,20 @@ const ChatbotDetails = ({ chatbot, onBack }: ChatbotDetailsProps) => {
       >
         Back to Chatbots List
       </button>
+      <div>
+       <Button className='mr-5' onClick={handleChatbotExport}>
+         {loading ? <Loader2 className='h-4 w-4 animate-spin'/> : "Export"}
+       </Button>
+       {/* Modal to display the code to copy and paste in one site */}
+       <ExportChatbotModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} embedCode={embedCode}/>
 
-      <Link href={`/chatbot-dashboard/chatbots/${chatbot.id}`}
-        className={buttonVariants({
-        })}
-        >
-          Chat with your bot
-        </Link>
+        <Link href={`/chatbot-dashboard/chatbots/${chatbot.id}`}
+          className={buttonVariants({
+          })}
+          >
+            Chat with your bot
+          </Link>
+        </div>
       </div>
       
 
@@ -81,7 +107,7 @@ const ChatbotDetails = ({ chatbot, onBack }: ChatbotDetailsProps) => {
         className={buttonVariants({
           className: "mt-4 p-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors",
         })}
-        onClick={handleCustomizeClick}
+        onClick={handleTrainClick}
         >
           Train Chatbot
         </Link>

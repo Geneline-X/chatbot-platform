@@ -1,21 +1,53 @@
-"use client"
-import React, { useContext } from 'react'
-import { ChatContext } from './ChatContext'
+"use client";
 
-const ChatMessages = () => {
-  const { messages, theme } = useContext(ChatContext)
+import React from 'react';
+import ChatMessage from './ChatMessage';
+import { Loader2 } from 'lucide-react';
 
-  return (
-    <div className="chat-messages" style={{ padding: '10px', height: '300px', overflowY: 'auto' }}>
-      {messages.map((msg, index) => (
-        <div key={index} style={{ margin: '10px 0', display: 'flex', justifyContent: msg.isUser ? 'flex-end' : 'flex-start' }}>
-          <div style={{ backgroundColor: msg.isUser ? theme.chatBubbleUserColor : theme.chatBubbleBotColor, padding: '10px', borderRadius: '10px', color: '#FFFFFF' }}>
-            {msg.text}
-          </div>
-        </div>
-      ))}
-    </div>
-  )
+interface ChatMessagesProps {
+  messages: any[];
+  theme: any;
+  isLoading: boolean;
 }
 
-export default ChatMessages
+const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, theme, isLoading }) => {
+  const messageContainerStyle: React.CSSProperties = {
+    padding: '10px',
+    height: '300px',
+    overflowY: 'auto',
+    backgroundColor: theme.secondaryColor,
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '10px'
+  };
+
+  return (
+    <div style={messageContainerStyle}>
+      {messages.map((msg) => (
+        <ChatMessage
+          key={msg.id}
+          text={msg.text}
+          isUser={msg.isUserMessage}
+          theme={theme}
+          isLoading={false} // Ensure individual messages are not set to loading
+        />
+      ))}
+      {isLoading && (
+        <ChatMessage
+          key="loading"
+          text={(
+            <div className="flex items-center justify-center">
+              <Loader2 className="animate-spin h-5 w-5 mr-2" />
+              <span>Thinking...</span>
+            </div>
+          )}
+          isUser={false}
+          theme={theme}
+          isLoading={true} // Set loading state for the loader message
+        />
+      )}
+    </div>
+  );
+};
+
+export default ChatMessages;

@@ -32,12 +32,12 @@ const Page = () => {
   return (
     <div className='w-full mt-24 justify-center'>
         <div className="flex flex-col items-center gap-2">
-            {error? null : <Loader2 className='h-8 animate-spin  text-blue-800'/>}
+            {error? null : <Loader2 className='h-8 animate-spin  text-black-800'/>}
             <h3 className='font-semibold text-2xl text-center'>
-                    {error ? "Session Expired" : "Setting up your Account..."}
+                {error ? "Session Expired" : "Setting up your Account..."}
             </h3>
              <p className='text-gray-600 text-center'>
-                    {error ? "Your session has ended. Please sign in again." : "You will be redirected automatically."}
+                {error ? "Your session has ended. Please sign in again." : "You will be redirected automatically."}
             </p>
              {/* Conditionally render sign-in button */}
               {error? (

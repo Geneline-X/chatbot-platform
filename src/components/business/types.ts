@@ -35,6 +35,16 @@ export type ChatbotProps = {
   updatedAt: string;
 }
 
+export interface Brand {
+  id: string;
+  chatbotId: string;
+  logo?: string;
+  name: string;
+  theme?: any;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
   export interface CreateBusinessFormProps {
     onSave: (business: Omit<Business, 'id'>) => void;
     onCancel: () => void;

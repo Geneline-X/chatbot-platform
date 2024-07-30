@@ -7,14 +7,19 @@ import {
     SelectItem,
     SelectTrigger,
     SelectValue,
- } from '@/components/ui/select'
+} from '@/components/ui/select'
 import { Input } from '@/components/ui/input'
 import Image from 'next/image'
+import { useUploadThing } from '@/lib/uploadthing'
+import { Button } from '../ui/button'
+import { Loader2 } from 'lucide-react'
 
-type WidgetSettingsProps = {
-  setWidgetProps: (widget: any) => void
+interface WidgetSettingsProps {
+  formData: any
+  updateFormData: (key: string, value: any) => void
 }
-const WidgetSettings: React.FC<WidgetSettingsProps> = ({setWidgetProps}) => {
+
+const WidgetSettings: React.FC<WidgetSettingsProps> = ({ formData, updateFormData }) => {
   const [widget, setWidget] = useState({
     position: 'bottom-right',
     size: 'medium',
@@ -23,26 +28,40 @@ const WidgetSettings: React.FC<WidgetSettingsProps> = ({setWidgetProps}) => {
   })
 
   useEffect(() => {
-    if(widget){
-      setWidgetProps(widget)
+    if (formData.widget) {
+      setWidget(formData.widget)
     }
-  }, [widget, setWidgetProps])
-  
+  }, [formData.widget])
+
+  const [logo, setLogo] = useState<File | null>(null)
+  const { startUpload, isUploading } = useUploadThing('freePlanUploader')
+
   const handleInputChange = (field: keyof typeof widget, value: string) => {
-    setWidget((prevWidget) => ({
-      ...prevWidget,
+    const updatedWidget = {
+      ...widget,
       [field]: value,
-    }))
-   
+    }
+    setWidget(updatedWidget)
+    updateFormData('widget', updatedWidget)
   }
 
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      setWidget((prevWidget) => ({
-        ...prevWidget,
-        //@ts-ignore
-        botAvatar: URL.createObjectURL(e.target.files[0])
-      }))
+      handleInputChange('botAvatar', '')
+    }
+  }
+
+  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setLogo(e.target.files[0])
+    }
+  }
+
+  const handleLogoUpload = async (): Promise<void> => {
+    if (logo) {
+      const res = await startUpload([logo])
+      const [responseFile] = res || []
+      handleInputChange('botAvatar', `https://utfs.io/f/${responseFile.key}`)
     }
   }
 
@@ -97,7 +116,7 @@ const WidgetSettings: React.FC<WidgetSettingsProps> = ({setWidgetProps}) => {
             id="botAvatar"
             type="file"
             accept="image/*"
-            onChange={handleAvatarChange}
+            onChange={handleLogoChange}
             className="mt-1"
           />
           {widget.botAvatar && 
@@ -111,6 +130,9 @@ const WidgetSettings: React.FC<WidgetSettingsProps> = ({setWidgetProps}) => {
               />
             </div>
           }
+          <Button onClick={handleLogoUpload} className='mt-2' disabled={isUploading}>
+            Upload {isUploading && <Loader2 className='h-4 w-4 animate-spin'/> }
+          </Button>
         </div>
       </div>
     </div>

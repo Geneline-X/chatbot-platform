@@ -5,45 +5,43 @@ import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
 
 type BehaviorSettingsProps = {
-  setBehaviorProps: (behavior: any | null) => void
+  formData: any
+  updateFormData: (key: string, value: any) => void
 }
-const BehaviorSettings: React.FC<BehaviorSettingsProps> = ({setBehaviorProps}) => {
+
+const BehaviorSettings: React.FC<BehaviorSettingsProps> = ({ formData, updateFormData }) => {
   const [behavior, setBehavior] = useState({
     showTypingIndicator: true,
     messageDelay: 1000,
-    autoRespondingHours: '9am-5pm',
-    offlineMessage: 'We are currently offline. Please leave a message.'
+    autoRespondingHours: '9am-5pm'
   })
 
   useEffect(() => {
-    if(behavior){
-      setBehaviorProps(behavior)
+    if (formData.behavior) {
+      setBehavior(formData.behavior)
     }
-  }, [behavior, setBehaviorProps])
-  const handleInputChange = (field: keyof typeof behavior, value: string) => {
-    setBehavior((prevBehavior) => ({
-      ...prevBehavior,
-      [field]: value,
-    }))
-  }
+  }, [formData.behavior])
 
-  const handleSwitchChange = (field: keyof typeof behavior, value: boolean) => {
-    setBehavior((prevBehavior) => ({
-      ...prevBehavior,
+  const handleInputChange = (field: keyof typeof behavior, value: any) => {
+    const updatedBehavior = {
+      ...behavior,
       [field]: value,
-    }))
+    }
+    setBehavior(updatedBehavior)
+    updateFormData('behavior', updatedBehavior)
   }
 
   return (
     <div className="mb-4 p-4 bg-gray-50 rounded shadow">
       <h3 className="text-lg font-semibold mb-4">Behavior Settings</h3>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="flex items-center">
-          <Label htmlFor="typingIndicator" className="mr-2">Show Typing Indicator</Label>
+      <div className="grid grid-cols-1 gap-4">
+        <div>
+          <Label htmlFor="showTypingIndicator">Show Typing Indicator</Label>
           <Switch
-            id="typingIndicator"
+            id="showTypingIndicator"
             checked={behavior.showTypingIndicator}
-            onCheckedChange={(checked) => handleSwitchChange('showTypingIndicator', checked)}
+            onCheckedChange={(value) => handleInputChange('showTypingIndicator', value)}
+            className="mt-1"
           />
         </div>
         <div>
@@ -52,27 +50,16 @@ const BehaviorSettings: React.FC<BehaviorSettingsProps> = ({setBehaviorProps}) =
             id="messageDelay"
             type="number"
             value={behavior.messageDelay}
-            onChange={(e) => handleInputChange('messageDelay', e.target.value)}
+            onChange={(e) => handleInputChange('messageDelay', parseInt(e.target.value))}
             className="mt-1"
           />
         </div>
         <div>
-          <Label htmlFor="autoRespondingHours">Auto-responding Hours</Label>
+          <Label htmlFor="autoRespondingHours">Auto-Responding Hours</Label>
           <Input
             id="autoRespondingHours"
-            type="text"
             value={behavior.autoRespondingHours}
             onChange={(e) => handleInputChange('autoRespondingHours', e.target.value)}
-            className="mt-1"
-          />
-        </div>
-        <div className="md:col-span-2">
-          <Label htmlFor="offlineMessage">Offline Message</Label>
-          <Input
-            id="offlineMessage"
-            type="text"
-            value={behavior.offlineMessage}
-            onChange={(e) => handleInputChange('offlineMessage', e.target.value)}
             className="mt-1"
           />
         </div>

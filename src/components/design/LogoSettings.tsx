@@ -1,33 +1,39 @@
 "use client"
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
+import Image from 'next/image'
 import { useUploadThing } from '@/lib/uploadthing'
+import { Button } from '../ui/button'
+import { Loader2 } from 'lucide-react'
 
-type LogoSettingsProps = {
-  setLogoUrl: (url: string | undefined) => void
+interface LogoSettingsProps {
+  formData: any
+  updateFormData: (key: string, value: any) => void
 }
-const LogoSettings: React.FC<LogoSettingsProps> = ({setLogoUrl}) => {
+
+const LogoSettings: React.FC<LogoSettingsProps> = ({ formData, updateFormData }) => {
   const [logo, setLogo] = useState<File | null>(null)
+  const { startUpload, isUploading } = useUploadThing('freePlanUploader')
+
+  useEffect(() => {
+    if (formData.logo) {
+      setLogo(null) // Initialize logo if needed
+    }
+  }, [formData.logo])
 
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      setLogo(e.target.files[0])
+      const file = e.target.files[0]
+      setLogo(file)
     }
   }
 
-  const {startUpload} = useUploadThing(
-     'freePlanUploader'
-  )
-
-  const handleLogoUpload = async(): Promise<void> => {
+  const handleLogoUpload = async (): Promise<void> => {
     if (logo) {
-      // Handle logo upload logic
-      console.log('Logo uploaded:', logo)
       const res = await startUpload([logo])
       const [responseFile] = res || []
-      setLogoUrl(responseFile.url)
+      updateFormData('logo', responseFile.url)
     }
   }
 
@@ -43,7 +49,20 @@ const LogoSettings: React.FC<LogoSettingsProps> = ({setLogoUrl}) => {
           onChange={handleLogoChange} 
           className="mb-2"
         />
-        <Button className="mt-2" onClick={handleLogoUpload}>Upload Logo</Button>
+        {formData.logo && (
+          <div className="mt-2">
+            <Image
+              src={formData.logo} 
+              alt="Logo preview" 
+              className="w-16 h-16 object-cover" 
+              width={64}
+              height={64}
+            />
+          </div>
+        )}
+        <Button onClick={handleLogoUpload} className='mt-2' disabled={isUploading}>
+          Upload {isUploading && <Loader2 className='h-4 w-4 animate-spin'/> }
+        </Button>
       </div>
     </div>
   )
