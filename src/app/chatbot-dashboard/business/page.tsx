@@ -11,12 +11,13 @@ const Page = async() => {
   const { getUser } = getKindeServerSession()
 
   const user = await getUser()
-  if(!user || !user.id) redirect("/auth-callback?origin=chatbot-dashboard")
+  
+  if(!user || !user.email) redirect("/auth-callback?origin=chatbot-dashboard")
 
   const dbUser = await db.user.findFirst({
-    where: {id : user.id}
+    where: {email : user?.email}
   })
-  
+
   if(!dbUser){
     redirect("/auth-callback?origin=chatbot-dashboard")
   }

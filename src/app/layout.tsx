@@ -4,6 +4,7 @@ import "./globals.css";
 import Providers from "@/components/Providers";
 import { BusinessProvider } from "@/components/business/BusinessContext";
 import { constructMetaData } from "@/lib/utils";
+import Navbar from "@/components/Navbar";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -22,7 +23,10 @@ export default function RootLayout({
     <html lang="en">
       <Providers>
         <BusinessProvider>
-          <body className={inter.className}>{children}</body>
+          <body className={inter.className}>
+            <Navbar />
+            {children}
+          </body>
         </BusinessProvider>
       </Providers>
     </html>

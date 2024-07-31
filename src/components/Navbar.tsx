@@ -23,9 +23,7 @@ const Navbar = async() => {
                     </div>
                     {!user ? (
                         <div className='flex items-center space-x-4'>
-                            <BusinessToggle/>
-
-                            <Link href="/dashboard" 
+                            <Link href="/docs" 
                                className={buttonVariants({ 
                                 variant: "ghost", size: "sm", 
                                 className:"text-xl" 
@@ -42,20 +40,28 @@ const Navbar = async() => {
                             <RegisterLink className={buttonVariants({size: "sm"})}>
                                 Get Started <ArrowRight className='ml-1.5 h-5 w-5'/>
                             </RegisterLink>
-                            {/* <UserAccountNav 
-                                name={!user?.given_name || !user.family_name ? "Your Account" : `${user.given_name} ${user.family_name}`}
-                                email={user?.email ?? ""}
-                                imageUrl={user?.picture ?? ""}
-                            /> */}
+                            
                         </div>
                     ): (
                       <>
-                        <Link href="/chatbot-dashboard" className={buttonVariants({
+                       <BusinessToggle
+                        id={user.id}
+                       />
+                       <Link href="/chatbot-dashboard" className={buttonVariants({
                             variant: "ghost",
-                            size: "sm"
+                            size: "sm",
+                            className:"text-xl" 
                         })}>
                             Dashboard
                         </Link>
+                        <Link href="/chatbot-dashboard/docs" 
+                        className={buttonVariants({ 
+                            variant: "ghost", size: "sm", 
+                            className:"text-xl" 
+                            })}>
+                            Docs
+                        </Link>
+                        
                         <UserAccountNav 
                             name={!user.given_name || !user.family_name ? "Your Account" : `${user.given_name} ${user.family_name}`}
                             email={user.email ?? ""}

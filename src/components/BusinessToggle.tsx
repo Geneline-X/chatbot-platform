@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState } from "react"
-import { ChevronsUpDown } from "lucide-react"
+import { ArrowBigRight, ArrowRight, ChevronsUpDown } from "lucide-react"
 import { buttonVariants } from './ui/button'
 import Link from 'next/link'
 import { Button } from "@/components/ui/button"
@@ -12,18 +12,27 @@ import {
 } from "@/components/ui/collapsible"
 import { useBusiness } from "./business/BusinessContext"
 
-const BusinessToggle = () => {
+interface BusinessToggleProps{
+  id: string | undefined
+}
+const BusinessToggle: React.FC<BusinessToggleProps> = ({id}) => {
   const [isOpen, setIsOpen] = useState(false)
   const { currentBusiness } = useBusiness()
   return (
-    <Collapsible
+    <>
+    {id ? (
+      <Collapsible
       open={isOpen}
       onOpenChange={setIsOpen}
       className="w-[250px] space-y-2"
     >
       <div className="flex items-center px-4">
         <h4 className="text-lg font-semibold">
-          {currentBusiness?.name}
+          {currentBusiness?.name 
+          ? currentBusiness?.name : 
+          <>
+           create business <ArrowRight className="h-4 w-4 m-1"/>
+          </>}
         </h4>
         <CollapsibleTrigger asChild>
           <Button variant="ghost" size="sm" className="w-9 p-0" onClick={() => setIsOpen(!isOpen)}>
@@ -46,7 +55,10 @@ const BusinessToggle = () => {
           </Button>
         </CollapsibleTrigger>
       </CollapsibleContent>
-    </Collapsible>
+      </Collapsible>
+    )
+    :null}
+    </>
   )
 }
 
