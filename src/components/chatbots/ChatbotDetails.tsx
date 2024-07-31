@@ -70,7 +70,7 @@ const ChatbotDetails = ({ chatbot, onBack }: ChatbotDetailsProps) => {
           className={buttonVariants({
           })}
           >
-            Chat with your bot
+            Test your bot
           </Link>
         </div>
       </div>

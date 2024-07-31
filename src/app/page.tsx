@@ -1,262 +1,99 @@
-
-import Image from "next/image";
-
-import { motion } from "framer-motion";
-import { Facebook, Twitter, Linkedin, Instagram, Mail, MapPin } from "lucide-react";
+import MaxWidthWrapper from "@/components/MaxWidthWrapper";
 import Link from "next/link";
-import StorySection from "@/components/StorySection";
-import { LoginLink, RegisterLink, getKindeServerSession, } from '@kinde-oss/kinde-auth-nextjs/server'
+import { ArrowRight } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
+import Image from "next/image";
+import { RegisterLink, getKindeServerSession } from '@kinde-oss/kinde-auth-nextjs/server';
+//import ContactForm from "@/components/ContactForm";
 
 export default async function Home() {
-  const { getUser } = getKindeServerSession()
-  const user = await getUser()
+
+  const { getUser } = getKindeServerSession();
+  const user = await getUser();
 
   return (
-    <div className="bg-gray-50 min-h-screen">
-      {/* Header */}
-      <header className="bg-white shadow-md">
-        <div className="container mx-auto flex justify-between items-center p-6">
-          <div className="text-3xl flex justify-center gap-x-1 font-bold text-gray-800">
-            <Image src="/geneline-x-main-x.jpg" alt="Geneline-X Logo" width={150} height={50} />
-            <div>
-            <span>Geneline-</span><h3>X</h3>
+    <>
+      <MaxWidthWrapper className="mb-12 mt-28 sm:mt-40 flex flex-col items-center justify-center text-center">
+        <div className="mx-auto mb-4 flex max-w-fit items-center justify-center space-x-2 overflow-hidden rounded-full border border-gray-200 bg-white px-7 py-2 shadow-md backdrop-blur transition-all hover:border-gray-300 hover:bg-white/50">
+          <p className="text-sm font-semibold text-gray-700">
+             GeniStudio is now live!
+          </p>
+        </div>
+        <h1 className="max-w-4xl text-5xl font-bold md:text-6xl lg:text-7xl">
+          Create Custom Chatbots with Ease on <span className="text-blue-500">GeniStudio</span>.
+        </h1>
+        <p className="mt-5 max-w-prose text-zinc-700 sm:text-lg">
+          GeniStudio empowers you to build and deploy customized chatbots in minutes without any coding. Perfect for businesses of all sizes.
+          <strong className="block mt-2 font-bold">Start your journey with us today.</strong>
+        </p>
+
+        {!user ? (
+          <RegisterLink className={buttonVariants({ size: "lg", className: "mt-5" })}>
+            Get Started <ArrowRight className='ml-1.5 h-5 w-5' />
+          </RegisterLink>
+        ) : (
+          <Link className={buttonVariants({ size: "lg", className: "mt-5" })} href="/chatbot-dashboard">
+            Dashboard <ArrowRight className="ml-2 h-5 w-5" />
+          </Link>
+        )}
+
+        <div>
+          <div className="relative isolate">
+            <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:top-80">
+              <div style={{ clipPath: "polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.75% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6 76.8%, 76.1% 97.7%, 74.1% 44.1%)" }} className="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-[#ff80b5] to-[#9089fc] opacity-30 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]" />
+            </div>
+
+            <div className="mx-auto max-w-6xl px-6 lg:px-8">
+              <div className="mt-16 flow-root sm:mt-24">
+                <div className="-m-2 rounded-xl bg-gray-900/5 p-2 ring-1 ring-inset ring-gray-900/10 lg:m-4 lg:rounded-2xl lg:p-4">
+                  {/* <Image 
+                    src="/genistudio-preview.png" 
+                    width={1364} 
+                    height={866}
+                    alt="preview of the app"
+                    quality={100}
+                    className="rounded-md bg-white p-2 sm:p-8 md:p-20 shadow-2xl ring-1 ring-gray-900/10"
+                  /> */}
+                </div>
+              </div>
+            </div>
+
+            <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:top-80">
+              <div style={{ clipPath: "polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.75% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6 76.8%, 76.1% 97.7%, 74.1% 44.1%)" }} className="relative left-[calc(50%-13rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-[#ff80b5] to-[#9089fc] opacity-20 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]" />
             </div>
           </div>
-          <nav className="space-x-6">
-            <a href="#services" className="text-lg font-medium text-gray-700 hover:text-gray-900">
-              Services
-            </a>
-            <a href="#products" className="text-lg font-medium text-gray-700 hover:text-gray-900">
-              Products
-            </a>
-            <a href="#team" className="text-lg font-medium text-gray-700 hover:text-gray-900">
-              Team
-            </a>
-            <a href="#stories" className="text-lg font-medium text-gray-700 hover:text-gray-900">
-              User Stories
-            </a>
-            <a href="#contact" className="text-lg font-medium text-gray-700 hover:text-gray-900">
-              Contact
-            </a>
-          </nav>
         </div>
-      </header>
+        <ol className="my-8 space-y-4 pt-8 md:flex md:space-x-12 md:space-y-0">
+          <li className="md:flex">
+            <div className="flex flex-col space-y-2 border-l-4 border-zinc-300 py-2 pl-4 md:border-l-0 md:border-t-2 md:pb-0 md:pl-0 md:pt-4">
+              <span className="text-sm font-medium text-blue-500">Step 1</span>
+              <span className="text-xl font-semibold">Sign up for an account.</span>
+              <span className="mt-2 text-zinc-700">
+                Start with our free trial and explore the features. Upgrade later for more advanced options.
+              </span>
+            </div>
+          </li>
+          <li className="md:flex">
+            <div className="flex flex-col space-y-2 border-l-4 border-zinc-300 py-2 pl-4 md:border-l-0 md:border-t-2 md:pb-0 md:pl-0 md:pt-4">
+              <span className="text-sm font-medium text-blue-500">Step 2</span>
+              <span className="text-xl font-semibold">Create your chatbot.</span>
+              <span className="mt-2 text-zinc-700">
+                Use our intuitive builder to design your chatbot's flow, set responses, and customize its appearance.
+              </span>
+            </div>
+          </li>
+          <li className="md:flex">
+            <div className="flex flex-col space-y-2 border-l-4 border-zinc-300 py-2 pl-4 md:border-l-0 md:border-t-2 md:pb-0 md:pl-0 md:pt-4">
+              <span className="text-sm font-medium text-blue-500">Step 3</span>
+              <span className="text-xl font-semibold">Deploy and manage.</span>
+              <span className="mt-2 text-zinc-700">
+                Integrate your chatbot with your website, social media, or any other platform. Manage and update it easily from your dashboard.
+              </span>
+            </div>
+          </li>
+        </ol>
 
-      {/* Hero Section */}
-      <section className="relative bg-gradient-to-r from-blue-600 to-teal-500 text-white py-20">
-        <div className="container mx-auto text-center">
-          <motion.h1
-            className="text-6xl font-extrabold mb-6"
-            initial={{ opacity: 0, y: -50 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1 }}
-          >
-            Empowering Innovation with Generative AI
-          </motion.h1>
-          <motion.p
-            className="text-2xl mb-8"
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, delay: 0.5 }}
-          >
-            Revolutionizing industries and enhancing lives through innovative AI solutions.
-          </motion.p>
-          
-          <motion.button
-            className="px-8 py-4 bg-white text-blue-600 font-semibold rounded-lg shadow-lg hover:bg-gray-100"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            
-          </motion.button>
-            {/* <RegisterLink className={buttonVariants({size: "sm"})}>
-              Get Started
-            </RegisterLink> */}
-        </div>
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-teal-500 opacity-70"></div>
-      </section>
-
-      {/* Services Section */}
-      <section id="services" className="container mx-auto py-20">
-        <h2 className="text-4xl font-bold text-center text-gray-800 mb-12">Our Services</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {services.map((service, index) => (
-            <motion.div
-              key={index}
-              className="bg-white p-6 rounded-lg shadow-lg hover:shadow-2xl transition-shadow duration-300"
-              initial={{ opacity: 0, scale: 0.9 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.2 }}
-            >
-              <Image src={service.image} alt={service.title} width={400} height={300} className="rounded-md mb-4" />
-              <h3 className="text-2xl font-bold text-gray-800 mb-2">{service.title}</h3>
-              <p className="text-gray-600">{service.description}</p>
-            </motion.div>
-          ))}
-        </div>
-      </section>
-
-      {/* Products Section */}
-      <section id="products" className="bg-gray-100 py-20">
-        <div className="container mx-auto text-center">
-          <h2 className="text-4xl font-bold text-gray-800 mb-12">Our Products</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {products.map((product, index) => (
-              <motion.div
-                key={index}
-                className="bg-white p-6 rounded-lg shadow-lg hover:shadow-2xl transition-shadow duration-300"
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.2 }}
-              >
-                <Image src={product.image} alt={product.title} width={400} height={300} className="rounded-md mb-4" />
-                <h3 className="text-2xl font-bold text-gray-800 mb-2">{product.title}</h3>
-                <p className="text-gray-600">{product.description}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Team Section */}
-      <section id="team" className="container mx-auto py-20">
-        <h2 className="text-4xl font-bold text-center text-gray-800 mb-12">Meet Our Team</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {team.map((member, index) => (
-            <motion.div
-              key={index}
-              className="bg-white p-6 rounded-lg shadow-lg hover:shadow-2xl transition-shadow duration-300"
-              initial={{ opacity: 0, scale: 0.9 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.2 }}
-            >
-              <Image src={member.image} alt={member.name} width={400} height={300} className="rounded-full mb-4" />
-              <h3 className="text-2xl font-bold text-gray-800 mb-2">{member.name}</h3>
-              <p className="text-gray-600">{member.role}</p>
-            </motion.div>
-          ))}
-        </div>
-      </section>
-
-      {/* User Stories Section */}
-      <StorySection/>
-
-     {/* Footer section  */}
-      <footer className="bg-gray-800 text-white py-12">
-      <div className="container mx-auto text-center">
-        <div className="mb-6">
-          <Image src="/geneline-x-main-x.jpg" alt="Geneline-X Logo" width={150} height={50} />
-        </div>
-        <div className="mb-6 space-x-6">
-          <Link className="text-lg font-medium hover:underline" href="#services">
-            Services
-          </Link>
-          <Link className="text-lg font-medium hover:underline" href="#products">
-            Products
-          </Link>
-          <Link className="text-lg font-medium hover:underline" href="#team">
-            Team
-          </Link>
-          <Link className="text-lg font-medium hover:underline" href="#user-stories">
-            User Stories
-          </Link>
-          <Link className="text-lg font-medium hover:underline" href="#contact">
-            Contact
-          </Link>
-        </div>
-        <div className="mb-6 space-x-6">
-          <Link className="text-white hover:text-gray-400 mx-2" href="https://twitter.com/genelinex">
-              <Twitter size={24} />
-          </Link>
-          <Link className="text-white hover:text-gray-400 mx-2" href="https://linkedin.com/company/geneline-x">
-           
-              <Linkedin size={24} />
-            
-          </Link>
-          <Link className="text-white hover:text-gray-400 mx-2" href="https://facebook.com/genelinex">
-         
-              <Facebook size={24} />
-            
-          </Link>
-          <Link className="text-white hover:text-gray-400 mx-2" href="https://instagram.com/genelinex">
-            
-              <Instagram size={24} />
-           
-          </Link>
-        </div>
-        <div className="mb-6 space-y-2">
-          <div className="flex justify-center items-center space-x-2">
-            <Mail size={20} />
-            <span className="text-gray-400">info@geneline-x.net</span>
-          </div>
-          <div className="flex justify-center items-center space-x-2">
-            <MapPin size={20} />
-            <span className="text-gray-400">20 Collier Street, Off Solo B Drive, Goderich, Freetown, Sierra Leone</span>
-          </div>
-        </div>
-        <p className="text-gray-400">© 2024 Geneline-X. All rights reserved.</p>
-      </div>
-    </footer>
-    </div>
+      </MaxWidthWrapper>
+    </>
   );
 }
-
-const services = [
-  {
-    title: "Generative AI Solutions",
-    description: "Creating innovative AI solutions tailored to your needs.",
-    image: "/generative-soln.jpeg",
-  },
-  {
-    title: "Software Development",
-    description: "Building robust and scalable software applications.",
-    image: "/Software-Development.jpg",
-  },
-  {
-    title: "Animated Video Production",
-    description: "Producing engaging and high-quality animated videos.",
-    image: "/animated-1.png",
-  },
-];
-
-const products = [
-  {
-    title: "Xplain AI",
-    description: "Interact with your documents and media files using AI.",
-    image: "/top-logo-x.jpg",
-  },
-  {
-    title: "Custom Chatbots",
-    description: "Tailored chatbots for customer service, education, and more.",
-    image: "/generative-ai-image-1.png",
-  },
-  {
-    title: "AI-Powered Analytics",
-    description: "Gain insights and make data-driven decisions with AI.",
-    image: "/generative-ai-data-analytics.webp",
-  },
-];
-
-const team = [
-  {
-    name: "DENNIS STEPHEN KAMARA",
-    role: "CEO/CTO",
-    image: "/my picture.jpg",
-  },
-  {
-    name: "MOHAMED J BAH",
-    role: "CFO",
-    image: "/jaward-pic.jpg",
-  },
-  {
-    name: "DEVELOPERS ",
-    role: "TEAM OF DEVELOPERS",
-    image: "/developer-image.jpeg",
-  },
-];
-
-

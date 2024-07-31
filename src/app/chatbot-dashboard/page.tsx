@@ -16,11 +16,11 @@ const Page = async() => {
   if(!user || !user.email) redirect("/auth-callback?origin=chatbot-dashboard")
 
   const dbUser = await db.user.findFirst({
-    where: {id : user.email}
+    where: {email : user.email}
   })
   
   if(!dbUser){
-    redirect("/auth-callback?origin=dashchatbot-dashboardboard")
+    redirect("/auth-callback?origin=chatbot-dashboard")
   }
 
   return (

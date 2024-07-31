@@ -31,7 +31,7 @@ const BusinessToggle: React.FC<BusinessToggleProps> = ({id}) => {
           {currentBusiness?.name 
           ? currentBusiness?.name : 
           <>
-           create business <ArrowRight className="h-4 w-4 m-1"/>
+           create business
           </>}
         </h4>
         <CollapsibleTrigger asChild>

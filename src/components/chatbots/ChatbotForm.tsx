@@ -60,8 +60,10 @@ const ChatbotForm = ({ onSave, onCancel }: Props) => {
         ...prevChatbot,
         businessId: currentBusiness.id
       }));
+    }else{
+      router.push("/chatbot-dashboard/business")
     }
-  }, [currentBusiness]);
+  }, [currentBusiness, router]);
 
   const handleInputChange = (field: keyof typeof chatbot, value: any) => {
     setChatbot((prevChatbot) => ({
@@ -122,7 +124,7 @@ const ChatbotForm = ({ onSave, onCancel }: Props) => {
           </Dialog>
         </div>
       </div>
-      <form onSubmit={handleSubmit}>
+      <form>
         <div className="mb-4">
           <Label>Name</Label>
           <Input
@@ -152,9 +154,8 @@ const ChatbotForm = ({ onSave, onCancel }: Props) => {
           <Button type="button" className="p-2 bg-gray-500 text-white rounded" onClick={onCancel}>
             Cancel
           </Button>
-          <Button type="submit" disabled={isLoading}>
-            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Save
+          <Button onClick={handleSubmit} disabled={isLoading}>
+            {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Save"}
           </Button>
         </div>
       </form>
