@@ -78,7 +78,7 @@ export default async function Home() {
               <span className="text-sm font-medium text-blue-500">Step 2</span>
               <span className="text-xl font-semibold">Create your chatbot.</span>
               <span className="mt-2 text-zinc-700">
-                Use our intuitive builder to design your chatbot's flow, set responses, and customize its appearance.
+                Use our intuitive builder to design your chatbot&apos;s flow, set responses, and customize its appearance.
               </span>
             </div>
           </li>
