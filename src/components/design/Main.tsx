@@ -94,6 +94,7 @@ const Main = () => {
       },
       onSettled: () => {
         setIsLoading(false)
+        router.push("/chatbot-dashboard/train")
       }
     })
   }
