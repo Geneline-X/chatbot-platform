@@ -8,8 +8,8 @@ export function cn(...inputs: ClassValue[]) {
 
 
 export function constructMetaData({
-  title =  "Xplain-ai - the SaaS for interacting with your document(pdf,ppt,doc,etc) files",
-  description = "Xplain-ai is a software that makes chatting with your Documents(pdf,ppt,doc,etc) files easy.",
+  title =  "GeniStudio - the Platform to fully build and customize your chatbots with no code",
+  description = "GeniStudio is Platform that makes building chatbots easily, with no code at all.",
   image = "/cover-xplain.jpg",
   icons = "/favicon.ico",
   noIndex = false,
@@ -43,7 +43,7 @@ export function constructMetaData({
       creator: "@DKamara36931"
     },
     icons,
-    metadataBase: new URL("https://cph-nine.vercel.app"),
+    metadataBase: new URL("https://geneline-x.net"),
     themeColor: "#FFF",
     ...(noIndex && {
       robots: {

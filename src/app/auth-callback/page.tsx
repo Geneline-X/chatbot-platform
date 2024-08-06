@@ -5,6 +5,7 @@ import { trpc } from '../_trpc/client'
 import { ArrowRight, Loader2 } from 'lucide-react'
 import Link from 'next/link'
 import { buttonVariants } from '@/components/ui/button'
+import { Suspense } from 'react'
 interface Props {}
 
 const Page = () => {
@@ -30,6 +31,7 @@ const Page = () => {
   })
 
   return (
+    <Suspense>
     <div className='w-full mt-24 justify-center'>
         <div className="flex flex-col items-center gap-2">
             {error? null : <Loader2 className='h-8 animate-spin  text-black-800'/>}
@@ -47,6 +49,7 @@ const Page = () => {
               ): null}
         </div>
     </div>
+    </Suspense>
   )
 }
 
