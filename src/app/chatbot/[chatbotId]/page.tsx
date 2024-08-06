@@ -1,6 +1,5 @@
 "use client"
-import ConfigurableChatbot from '@/components/individualbot/ConfigurableChatbot'
-import MainChatbot from '@/components/individualbot/Main'
+
 import React from 'react'
 import StandaloneChatbot from '@/components/individualbot/StandaloneChatbot'
 interface ChatbotPageProps {
