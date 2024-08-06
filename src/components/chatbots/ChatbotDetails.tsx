@@ -43,7 +43,6 @@ const ChatbotDetails = ({ chatbot, onBack }: ChatbotDetailsProps) => {
         description: "Now anyone with the url can access it"
       })
       setIsModalOpen(true);
-      router.push(`/chatbot/${chatbot.id}`)
       setEmbedCode(`${process.env.NEXT_PUBLIC_ABSOLUTE_URL}/chatbot/${chatbot.id}`);
       
     } catch (error) {

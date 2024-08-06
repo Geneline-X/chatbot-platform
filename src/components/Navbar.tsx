@@ -28,7 +28,6 @@ const Navbar = async() => {
                             <Link href="/docs" 
                                className={buttonVariants({ 
                                 variant: "ghost", size: "sm", 
-                                className:"text-xl" 
                                 })}>
                                 Docs
                             </Link>
