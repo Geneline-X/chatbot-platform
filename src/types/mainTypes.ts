@@ -4,6 +4,12 @@ export interface Chatbot {
     name: string;
     businessId: string;
     systemInstruction: string;
+    message: {
+      id:string,
+      text:string,
+      chatbotId:string,
+      isUserMessage:string,
+    }[]
     urlsToBusinessWebsite: string;
     customConfigurations: Record<string, any>;
     createAt:string;

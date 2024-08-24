@@ -1,16 +1,25 @@
 "use client"
 import React from 'react'
 
-const MessagesList = ({ chatbotId }:any) => {
-  const messages:any = [
-    // Fetch messages from API or state
-  ]
+const MessagesList = ({ chatbotMessages }:any) => {
+
 
   return (
     <div>
-      {messages.map((message:any) => (
+       {chatbotMessages.map((message: any) => (
         <div key={message.id} className="p-4 bg-white shadow rounded mb-4">
-          <p>{message.content}</p>
+          <div className="flex justify-between items-center mb-2">
+            <span className="text-sm font-semibold">
+              ID: {message.id}
+            </span>
+            <span className={`text-sm ${message.isUserMessage === true ? 'text-blue-500' : 'text-green-500'}`}>
+              {message.isUserMessage === true ? 'User Message' : 'Bot Message'}
+            </span>
+          </div>
+          <div className="text-gray-600">
+            <p>Chatbot ID: {message.chatbotId}</p>
+          </div>
+          {/* Add more metrics or information here as needed */}
         </div>
       ))}
     </div>

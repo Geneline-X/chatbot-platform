@@ -22,7 +22,7 @@ const Page = async() => {
   if(!dbUser){
     redirect("/auth-callback?origin=chatbot-dashboard")
   }
-
+// work on the analytics, create a basic form to get user details, who interacted with the created bot
   return (
     <MaxWidthWrapper>
       <p>Welcome {user.given_name}!</p>

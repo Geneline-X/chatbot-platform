@@ -129,7 +129,7 @@ export const POST = async(req: NextRequest) => {
             }
           }
         })
-        
+
        return  new StreamingTextResponse(responseStream);
        
     } catch (error) {
