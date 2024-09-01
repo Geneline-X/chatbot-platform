@@ -6,7 +6,7 @@ import { BusinessFromProps } from './CreateBusinessForm';
 import { Business } from './types';
 
 interface BusinessListProps {
-  businesses: Business[] | undefined;
+  businesses: any;
   onEdit: (business: Business) => void;
   onDelete: (id: string) => void;
   currentDeletingFile: string | null;
@@ -17,7 +17,7 @@ const BusinessList: React.FC<BusinessListProps> = ({ businesses, onEdit, onDelet
 
   return (
     <ul className="mt-8 grid grid-cols-1 gap-6 divide-y divide-zinc-200 md:grid-cols-2 lg:grid-cols-3">
-      {businesses?.map((business) => (
+      {businesses?.map((business:any) => (
         <li
           key={business.id}
           className="col-span-1 divide-y divide-gray-200 rounded-lg bg-white shadow transition hover:shadow-lg cursor-pointer" // Add cursor-pointer for click indication
