@@ -111,7 +111,7 @@ export const appRouter = router({
       },
     });
   }),
-   getChatbotMessages: PrivateProcedure.input(z.object({
+   getChatbotMessages: publicProcedure.input(z.object({
     limit: z.number().min(1).max(100).nullish(),
     cursor: z.string().nullish(),
     chatbotId: z.string() || z.undefined(),
@@ -282,7 +282,7 @@ export const appRouter = router({
     
     
   }),
-  getBrand: PrivateProcedure.input(z.object({
+  getBrand: publicProcedure.input(z.object({
    chatbotId: z.string()
   })).query(async({ctx, input}) => {
     const { chatbotId } = input
