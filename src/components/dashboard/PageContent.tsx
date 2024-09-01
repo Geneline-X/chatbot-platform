@@ -5,7 +5,7 @@ import { useBusiness } from "../business/BusinessContext"
 import { buttonVariants } from "../ui/button"
 import { MyLoader } from "../MyLoader"
 import Link from "next/link"
-import { Plus, Briefcase } from "lucide-react"
+import { Plus, Briefcase, Ghost } from "lucide-react"
 import Main from '@/components/dashboard/Main'
 import Analytics from '@/components/dashboard/Analytics'
 
@@ -22,15 +22,31 @@ const PageContent = () => {
 
   if (!currentBusiness) {
     return (
-      <div className="flex flex-col items-center justify-center h-full">
-        <p className="text-gray-600">You don&apos;t have any businesses yet.</p>
-        <Link
-          className={buttonVariants({ size: "sm", className: "mt-4" })}
-          href="/chatbot-dashboard/business"
-        >
-          <Plus className="mr-2" /> Create Business
-        </Link>
+      <div className="flex flex-col items-center justify-center h-full space-y-8">
+      <div className="text-center">
+        <p className="text-2xl font-semibold text-gray-800">
+          No Businesses Found
+        </p>
+        <p className="text-gray-600 mt-2">
+          It looks like you haven&apos;t created any businesses yet.
+        </p>
       </div>
+
+      <div className="flex flex-col items-center">
+        <Ghost className="w-24 h-24 text-gray-400" />
+        <p className="text-gray-600 mt-4">
+          Your business list is empty. Start by creating your first business.
+        </p>
+      </div>
+
+      <Link
+        className={buttonVariants({ size: "lg", className: "mt-4" })}
+        href="/chatbot-dashboard/business"
+      >
+        <Plus className="mr-2" /> Create Your First Business
+      </Link>
+    </div>
+
     )
   }
 
