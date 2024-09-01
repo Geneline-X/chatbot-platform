@@ -5,8 +5,12 @@ import { redirect } from 'next/navigation'
 import { db } from '@/db'
 import Main from '@/components/dashboard/Main'
 import Analytics from '@/components/dashboard/Analytics'
+import PageContent from '@/components/dashboard/PageContent'
 
 interface Props {}
+
+
+
 
 const Page = async() => {
 
@@ -22,12 +26,10 @@ const Page = async() => {
   if(!dbUser){
     redirect("/auth-callback?origin=chatbot-dashboard")
   }
-// work on the analytics, create a basic form to get user details, who interacted with the created bot
+
   return (
     <MaxWidthWrapper>
-      <p>Welcome {user.given_name}!</p>
-      <Main/>
-      <Analytics/>
+      <PageContent/>
   </MaxWidthWrapper>
   )
 }

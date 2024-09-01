@@ -1,24 +1,26 @@
 "use client"
 import React from 'react'
-
+import { Business } from '../business/types'
 interface Props {}
 
-const Main = () => {
+const Main = ({business} : {business: Business}) => {
+  const totalChatbots = business.chatbots.length
+  const totalInteractions = business.chatbots.reduce((acc, chatbot) => acc + chatbot.message.length, 0)
+  const totalFiles = business.chatbots.reduce((acc, chatbot) => acc + chatbot.file.length, 0)
+  
   return (
-    <div>
-      <div className="grid grid-cols-3 gap-6 mt-6">
-        <div className="p-4 bg-white shadow rounded">
-          <h2 className="text-xl font-semibold">Total Interactions</h2>
-          <p className="text-lg">12345</p>
-        </div>
-        <div className="p-4 bg-white shadow rounded">
-          <h2 className="text-xl font-semibold">Active Chatbots</h2>
-          <p className="text-lg">12</p>
-        </div>
-        <div className="p-4 bg-white shadow rounded">
-          <h2 className="text-xl font-semibold">User Engagement</h2>
-          <p className="text-lg">75%</p>
-        </div>
+    <div className="grid grid-cols-3 gap-6 mt-6">
+      <div className="p-4 bg-white shadow rounded-lg">
+        <h2 className="text-xl font-semibold">Total Interactions</h2>
+        <p className="text-lg">{totalInteractions}</p>
+      </div>
+      <div className="p-4 bg-white shadow rounded-lg">
+        <h2 className="text-xl font-semibold">Total Chatbots</h2>
+        <p className="text-lg">{totalChatbots}</p>
+      </div>
+      <div className="p-4 bg-white shadow rounded-lg">
+        <h2 className="text-xl font-semibold">Total Files Uploaded</h2>
+        <p className="text-lg">{totalFiles}</p>
       </div>
     </div>
   )

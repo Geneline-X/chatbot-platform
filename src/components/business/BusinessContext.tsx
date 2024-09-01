@@ -1,5 +1,4 @@
 "use client"
-// BusinessContext.tsx
 
 import React, { ReactNode, createContext, useState, useContext, useEffect } from 'react';
 import { trpc } from '@/app/_trpc/client';
@@ -45,9 +44,10 @@ interface BusinessProviderProps {
 export const BusinessProvider: React.FC<BusinessProviderProps> = ({ children }) => {
   const [currentBusiness, setCurrentBusiness] = useState<Business | null>(null);
   const { data: businesses, isLoading } = trpc.getAllBusinesses.useQuery();
-  
+  console.log(businesses)
   useEffect(() => {
     if (businesses && businesses.length > 0 && !currentBusiness) {
+      
       setCurrentBusiness(businesses[0]);
     }
   }, [businesses, currentBusiness]);

@@ -21,8 +21,32 @@ export type Business = {
     customConfigurations: Prisma.JsonValue;
     createAt: string;
     updatedAt: string;
+    message: {
+      id: string;
+      chatbotId: string;
+      isUserMessage: boolean;
+      createAt: string;
+      text: string;
+    }[];
+    file: {
+      id: string;
+      chatbotId: string;
+      name: string;
+      url: string;
+      createAt: string;
+    }[];
+    brands: {
+      id: string;
+      chatbotId: string;
+      name: string;
+      logo: string | null;
+      theme: Prisma.JsonValue;
+      createAt: string;
+      updatedAt: string;
+    }[];
   }[];
 };
+
 
 export type ChatbotProps = {
   id: string;

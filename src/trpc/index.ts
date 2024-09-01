@@ -206,7 +206,13 @@ export const appRouter = router({
     const businesses = await db.business.findMany({
         where: { userId },
         include: {
-          chatbots: true,
+          chatbots: {
+            include: {
+              message: true,
+              file: true,
+              brands: true,
+            },
+          },
         },
       });
   
