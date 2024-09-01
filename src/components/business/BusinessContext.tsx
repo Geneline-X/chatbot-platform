@@ -47,8 +47,7 @@ export const BusinessProvider: React.FC<BusinessProviderProps> = ({ children }) 
   console.log(businesses)
   useEffect(() => {
     if (businesses && businesses.length > 0 && !currentBusiness) {
-      
-      setCurrentBusiness(businesses[0]);
+      setCurrentBusiness(businesses[0] as Business);
     }
   }, [businesses, currentBusiness]);
 
