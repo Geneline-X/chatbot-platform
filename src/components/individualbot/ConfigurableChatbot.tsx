@@ -10,6 +10,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { toast } from '../ui/use-toast';
 import { ChatContextProvider } from './ChatContext';
 import Messages from './Messages';
+import { MyLoader } from '../MyLoader';
 
 interface ConfigurableChatbotProps {
   chatbotId: string;
@@ -45,7 +46,7 @@ const ConfigurableChatbot: React.FC<ConfigurableChatbotProps> = ({ chatbotId }) 
     }
   }, [config]);
 
-  if (configLoading) return <div>Loading...</div>;
+  if (configLoading) return <div className='flex justify-center text-center'><MyLoader/></div>;
   if (configError) return <div>Error loading chatbot configuration</div>;
 
   const chatContainerStyle: React.CSSProperties = {

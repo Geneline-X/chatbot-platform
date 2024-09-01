@@ -44,7 +44,6 @@ const BusinessToggle: React.FC<BusinessToggleProps> = ({id}) => {
       <CollapsibleContent className="space-y-2 bg-white shadow-md rounded-md p-4 mt-5 z-10">
         <Link href="/chatbot-dashboard/business" className={buttonVariants({ 
           variant: "ghost", size: "sm", 
-          className: "text-xl" 
         })}>
           Switch Business
         </Link>

@@ -1,5 +1,26 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  async headers() {
+    return [
+      {
+        source: '/api/:path*', // This applies the headers to all API routes
+        headers: [
+          {
+            key: 'Access-Control-Allow-Origin',
+            value: '*' // Allow all domains to access this API endpoint
+          },
+          {
+            key: 'Access-Control-Allow-Methods',
+            value: 'GET, POST, PUT, DELETE, OPTIONS' // Specify the allowed methods
+          },
+          {
+            key: 'Access-Control-Allow-Headers',
+            value: 'X-Requested-With, Content-Type, Authorization' // Specify the allowed headers
+          }
+        ],
+      }
+    ]
+  },
     async redirects(){
         return [
          {
@@ -43,23 +64,7 @@ const nextConfig = {
         ],
     },
     reactStrictMode: true,
-    async headers() {
-      return [
-        {
-          source: '/chat-widget',
-          headers: [
-            {
-              key: 'X-Frame-Options',
-              value: 'ALLOW-FROM *' // Allow embedding from any domain (modify as needed for security)
-            },
-            {
-              key: 'Content-Security-Policy',
-              value: "frame-ancestors 'self' *;" // Modify as needed for security
-            }
-          ]
-        }
-      ]
-    }
+    
 };
 
 export default nextConfig;

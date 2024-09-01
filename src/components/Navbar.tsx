@@ -41,7 +41,6 @@ const Navbar = async() => {
                             <RegisterLink className={buttonVariants({size: "sm"})}>
                                 Get Started <ArrowRight className='ml-1.5 h-5 w-5'/>
                             </RegisterLink>
-                            
                         </div>
                     ): (
                       <>
@@ -51,14 +50,12 @@ const Navbar = async() => {
                        <Link href="/chatbot-dashboard" className={buttonVariants({
                             variant: "ghost",
                             size: "sm",
-                            className:"text-xl" 
                         })}>
                             Dashboard
                         </Link>
                         <Link href="/chatbot-dashboard/docs" 
                         className={buttonVariants({ 
                             variant: "ghost", size: "sm", 
-                            className:"text-xl" 
                             })}>
                             Docs
                         </Link>
