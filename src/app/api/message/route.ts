@@ -15,13 +15,7 @@ export const POST = async(req: NextRequest) => {
     try {
         
         const body = await req.json()
-        const { getUser } = getKindeServerSession()
-        const user = await  getUser()
-    
-        const userId = user?.id
-    
-        if(!userId) return new Response("Unauthorized", {status: 401})
-
+     
           console.log("this is the body: ", body)
         const { chatbotId ,message, isUrlFile } = SendMessageValidators.parse(body)
 
@@ -46,7 +40,6 @@ export const POST = async(req: NextRequest) => {
             data: {
                 text: message,
                 isUserMessage: true,
-                userId,
                 chatbotId,
              }
           })
@@ -115,7 +108,7 @@ export const POST = async(req: NextRequest) => {
                       isUserMessage: false,
                       chatbotId,
                       fileId:'',
-                      userId,
+                      
                     },
                   });
                   console.log("This is the created Stream Message: ", streamMessage)
