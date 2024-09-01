@@ -91,13 +91,15 @@ const Main = () => {
           <p>Let&apos;s create your first business.</p>
         </div>
       ) : (
-        // @ts-ignore
-        <BusinessList
-          businesses={businesses}
-          onEdit={handleEditBusiness}
-          onDelete={handleDeleteBusiness}
-          currentDeletingFile={currentDeletingFile}
-        />
+        businesses && (
+          // @ts-ignore
+          <BusinessList
+            businesses={businesses}
+            onEdit={handleEditBusiness}
+            onDelete={handleDeleteBusiness}
+            currentDeletingFile={currentDeletingFile}
+          />
+        )
       )}
     </div>
   );
