@@ -2,14 +2,18 @@
 import { trpc } from '@/app/_trpc/client'
 import { INFINITE_QUERY_LIMIT } from '@/config/infinite-query'
 import { Loader2, MessageSquare } from 'lucide-react'
-import React, { useContext, useEffect, useRef, useCallback } from 'react'
+import React, { useContext, useEffect, useRef, useCallback, useState } from 'react'
 import Skeleton from 'react-loading-skeleton'
 import Message from './Message'
 import { ChatContex } from './ChatContext'
 import { useIntersection } from "@mantine/hooks"
+import EmailPromptForm from './EmailPromptForm'
+import useChatbotConfig from '@/lib/hooks/useChatbotConfig'
+import { getSession, storeMessage, clearMessages } from '../../lib/utils';
 
 interface MessagesProps {
   chatbotId: string
+  welcomeMessage:string
   theme:{
     primaryColor: string;
     secondaryColor: string;
@@ -22,11 +26,18 @@ interface MessagesProps {
   };
 }
 
-const Messages = ({ chatbotId, theme}: MessagesProps) => {
-  let { isLoading: isAiThinking, addMessage, message, setMessage } = useContext(ChatContex)
+const Messages = ({ chatbotId, theme, welcomeMessage}: MessagesProps) => {
+  let { isLoading: isAiThinking, addMessage, message, setMessage, email, setEmail } = useContext(ChatContex)
+  const [localMessages, setLocalMessages] = useState<any[]>([]);
+  const [showEmailPrompt, setShowEmailPrompt] = useState(true);
+  
+  const sessionId = getSession();
+
   const { data, isLoading, fetchNextPage } = trpc.getChatbotMessages.useInfiniteQuery({
     chatbotId,
     limit: INFINITE_QUERY_LIMIT,
+    email: email || '',
+    sessionId: email ? undefined : sessionId! 
   }, {
     getNextPageParam: (lastPage) => lastPage?.nextCursor,
     keepPreviousData: true
@@ -34,6 +45,7 @@ const Messages = ({ chatbotId, theme}: MessagesProps) => {
 
   const messages = data?.pages.flatMap((page) => page.messages)
 
+  console.log(messages)
   const loadingMessage = {
     createAt: new Date().toISOString(),
     id: 'loading-message',
@@ -44,10 +56,12 @@ const Messages = ({ chatbotId, theme}: MessagesProps) => {
       </span>
     )
   }
-  const combinedMessages = [
-    ...(isAiThinking ? [loadingMessage] : []),
-    ...(messages ?? [])
-  ]
+  const combinedMessages = React.useMemo(() => {
+    return [
+      ...(isAiThinking ? [loadingMessage] : []),
+      ...(messages ?? [])
+    ];
+  }, [isAiThinking, messages]);
 
   const lastMessageRef = useRef<HTMLDivElement>(null)
 
@@ -71,6 +85,20 @@ const Messages = ({ chatbotId, theme}: MessagesProps) => {
     }
   }, [message, addMessage])
 
+  
+
+  const handleEmailSubmit = (email: string) => {
+    setEmail(email);
+    console.log(email)
+    setShowEmailPrompt(false);
+    clearMessages();
+  };
+
+  const handleSkip = () => {
+    console.log('clicked')
+    setShowEmailPrompt(false);
+  }
+
   const handleActionClick = useCallback((actionType: string) => {
     let predefinedMessage
     switch (actionType) {
@@ -90,7 +118,16 @@ const Messages = ({ chatbotId, theme}: MessagesProps) => {
     setMessage(predefinedMessage)
   }, [setMessage])
 
-  
+
+  if (messages?.length === 0 && showEmailPrompt) {
+    return <EmailPromptForm 
+    onEmailSubmit={handleEmailSubmit} 
+    onSkip={handleSkip} 
+    theme={theme}
+    welcomeMessage={welcomeMessage}
+    />
+  }
+
   return (
     <div className='flex max-h-[calc(100vh-3.5rem-7rem)] border-zinc-200 flex-1 flex-col-reverse gap-4 p-3 overflow-auto scrollbar-thumb-blue scrollbar-thumb-rounded scrollbar-track-blue-lighter scrollbar-w-2 scrolling-touch whitespace-normal break-words'>
       {combinedMessages && combinedMessages.length > 0 ? (
@@ -124,7 +161,7 @@ const Messages = ({ chatbotId, theme}: MessagesProps) => {
       ) : (
         <div className='mx-auto flex w-full flex-1 flex-col justify-center gap-3 p-4 text-center'>
           <MessageSquare className='mx-auto h-10 w-10 text-zinc-400' />
-          <span className='text-sm text-zinc-400'>No messages</span>
+          <span className='text-sm text-zinc-400'>{welcomeMessage}</span>
         </div>
       )}
     </div>

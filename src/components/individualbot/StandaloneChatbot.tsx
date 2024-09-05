@@ -64,7 +64,7 @@ const StandaloneChatbot: React.FC<StandaloneChatbotProps> = ({
   
       <ChatContextProvider chatbotId={chatbotId}>
         
-          <Messages chatbotId={chatbotId} theme={theme} />
+          <Messages chatbotId={chatbotId} theme={theme} welcomeMessage={otherProps.widget.welcomeMessage}/>
           <ChatInput theme={theme} />
         
       </ChatContextProvider>

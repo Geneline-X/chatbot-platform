@@ -9,6 +9,7 @@ import { INFINITE_QUERY_LIMIT } from '@/config/infinite-query';
 //import { getStripeUserSubscriptionPlan, stripe } from '@/lib/stripe';
 //import { PLANS } from '@/config/stripe';
 import { v4 } from 'uuid'
+import { getInMemoryMessages } from '@/lib/utils';
 
 export const appRouter = router({
     authCallback: publicProcedure.query(async() => {
@@ -114,37 +115,73 @@ export const appRouter = router({
    getChatbotMessages: publicProcedure.input(z.object({
     limit: z.number().min(1).max(100).nullish(),
     cursor: z.string().nullish(),
-    chatbotId: z.string() || z.undefined(),
+    chatbotId: z.string().optional(),
+    email: z.string().optional(),
+    sessionId: z.string().optional().nullish(),
   })).query(async ({ input }) => {
-    const { chatbotId, cursor } = input;
-    const limit = input.limit ?? 20
+    const { chatbotId, cursor, email } = input;
+    const limit = input.limit ?? 20;
 
-    const messages = await db.message.findMany({
-      where: {
-        chatbotId,
-      },
-      orderBy: {
-        createAt: "desc"
-      },
-      cursor: cursor ? {id: cursor} : undefined,
-      select: {
-        id: true,
-        isUserMessage: true,
-        chatbotId:true,
-        createAt: true,
-        text: true
-    }
-    });
+    if (email) {
+      // Fetch messages associated with the user's email
+      const messages = await db.message.findMany({
+        where: {
+          chatbotId,
+          chatbotUser: {
+            email: email,
+          },
+        },
+        orderBy: {
+          createAt: "desc",
+        },
+        cursor: cursor ? { id: cursor } : undefined,
+        take: limit + 1,
+        select: {
+          id: true,
+          isUserMessage: true,
+          chatbotId: true,
+          createAt: true,
+          text: true,
+        },
+      });
 
-    let nextCursor: typeof cursor | undefined = undefined
-    if(messages.length > limit){
-        const nextItem = messages.pop()
-        nextCursor = nextItem?.id
+      let nextCursor: typeof cursor | undefined = undefined;
+      if (messages.length > limit) {
+        const nextItem = messages.pop();
+        nextCursor = nextItem?.id;
+      }
+
+      return {
+        messages,
+        nextCursor
+      };
+    }  else {
+      // Return empty result if neither email nor sessionId is provided
+      return {
+        messages: [],
+        nextCursor: undefined,
+      };
     }
+  }),
+
+  getChatbotInMemoryMessages: publicProcedure.input(z.object({
+    sessionId: z.string(),
+    limit: z.number().min(1).max(100).nullish(),
+    cursor: z.string().nullish(),
+  })).query(async ({ input }) => {
+    const { sessionId, cursor } = input;
+    const limit = input.limit ?? 20;
+
+    const messages = getInMemoryMessages(sessionId).slice();
+    const startIndex = cursor ? messages.findIndex(msg => msg.id === cursor) + 1 : 0;
+    const paginatedMessages = messages.slice(startIndex, startIndex + limit);
+
+    const nextCursor = paginatedMessages.length < messages.length ? paginatedMessages[paginatedMessages.length - 1].id : undefined;
+
     return {
-      messages,
-      nextCursor
-    }
+      messages: paginatedMessages,
+      nextCursor,
+    };
   }),
 
    updateChatbot: PrivateProcedure.input(z.object({

@@ -8,6 +8,9 @@ import { llm,genAI } from "@/lib/gemini";
 import { cosineSimilaritySearch, generateSystemInstruction } from "@/lib/elegance";
 import { PDFLoader } from "langchain/document_loaders/fs/pdf";
 import { Prisma } from "@prisma/client";
+import { storeInMemoryMessage, getInMemoryMessages } from "@/lib/utils";
+import { TRPCError } from "@trpc/server";
+
 export const maxDuration = 300
 
 
@@ -17,9 +20,22 @@ export const POST = async(req: NextRequest) => {
         const body = await req.json()
      
           console.log("this is the body: ", body)
-        const { chatbotId ,message, isUrlFile } = SendMessageValidators.parse(body)
+        const { chatbotId ,message, email, sessionId } = SendMessageValidators.parse(body)
 
-        const prevMessages = await db.message.findMany({
+        let chatbotUser = null;
+        if(!email && sessionId){
+          throw new TRPCError({message: "email not found", code: "NOT_FOUND"})
+            
+         }
+        if (email) {
+            chatbotUser = await db.chatbotUser.upsert({
+                where: { email },
+                update: { updatedAt: new Date() },
+                create: { email, chatbotId },
+            });
+        }
+
+        const prevMessages = email ? await db.message.findMany({
             where: {
                 chatbotId
             },
@@ -27,8 +43,9 @@ export const POST = async(req: NextRequest) => {
                 createAt: "asc"
             },
             take: 6
-        })
+        }) : getInMemoryMessages(sessionId!)
     
+         
          const formattedPrevMessages = prevMessages.map((msg:any) => {
             return {
               role: msg.isUserMessage ? "user" : "model",
@@ -40,6 +57,7 @@ export const POST = async(req: NextRequest) => {
             data: {
                 text: message,
                 isUserMessage: true,
+                chatbotUserId: chatbotUser?.id,
                 chatbotId,
              }
           })
@@ -68,8 +86,7 @@ export const POST = async(req: NextRequest) => {
           }
  
           const systemInstructionFromAI = await generateSystemInstruction(chatbot?.systemInstruction as string)
-         console.log(chatbot?.systemInstruction)
-         console.log(systemInstructionFromAI)
+
           const llm = genAI.getGenerativeModel({
             model:"gemini-1.5-flash",
             systemInstruction: systemInstructionFromAI
@@ -101,14 +118,14 @@ export const POST = async(req: NextRequest) => {
                     controller.enqueue(chunk.text());
                     text += chunk.text() 
                   }
-                  // If previous database call exists, update the existing message
+                  
                   const streamMessage = await db.message.create({
                     data: {
                       text,
                       isUserMessage: false,
                       chatbotId,
-                      fileId:'',
-                      
+                      chatbotUserId: chatbotUser?.id,
+                      fileId:'',  
                     },
                   });
                   console.log("This is the created Stream Message: ", streamMessage)

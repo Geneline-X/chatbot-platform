@@ -36,7 +36,6 @@ const Message = forwardRef<HTMLDivElement, MessageProps>(({ message, isNextMessa
   const [isCopied, setIsCopied] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const { config } = useChatbotConfig(chatbotId)
   const handleCopy = () => {
     setIsCopied(true);
     setTimeout(() => setIsCopied(false), 1500); // Reset the copy state after 1.5 seconds

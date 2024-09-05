@@ -5,6 +5,7 @@ import { Textarea } from '../ui/textarea';
 import { Button } from '../ui/button';
 import { Send } from 'lucide-react';
 import { ChatContex } from './ChatContext'
+import { isValidEmail } from '@/lib/utils';
 
 interface ChatInputProps {
   theme: {
@@ -20,7 +21,8 @@ interface ChatInputProps {
 }
 
 const ChatInput: React.FC<ChatInputProps> = ({ theme }) => {
-  const { message, handleInputChange, addMessage, isLoading } = useContext(ChatContex);
+  const { message, handleInputChange, addMessage, isLoading, email } = useContext(ChatContex);
+
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -47,7 +49,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ theme }) => {
           }}
           className="flex-1 resize-none p-2"
           rows={1}
-          disabled={isLoading}
+          disabled={!isValidEmail(email) || isLoading}
         />
         <Button onClick={() => addMessage()} style={{ backgroundColor: theme.primaryColor }} disabled={isLoading}>
           <Send />

@@ -112,7 +112,7 @@ const FileUploadDropzone: React.FC<FileUploadDropzoneProps> = ({ isSubscribed })
               <p className='mb-2 text-sm text-zinc-700'>
                 <span className='font-semibold'>Click to upload</span> or drag and drop
               </p>
-              <p className='text-sm text-zinc-500'>Document Files/Media Files (up to {isSubscribed ? "infinite pages" : "10 pages"})</p>
+              <p className='text-sm text-zinc-500'>Document Files/Media Files</p>
 
               {isUploading ? (
                 <div className='w-full mt-4 max-w-xs mx-auto'>

@@ -21,7 +21,7 @@ export default function RootLayout({
     <html lang="en">
       <Providers>
         <BusinessProvider>
-            <body className={inter.className}>
+            <body className={inter.className}> 
                {children}
             </body>
         </BusinessProvider>

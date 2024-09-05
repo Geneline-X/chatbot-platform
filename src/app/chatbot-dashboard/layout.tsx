@@ -9,6 +9,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next"
 import Navbar from '@/components/Navbar'
 import { Inter } from 'next/font/google'
 import Sidebar from '@/components/Sidebar'
+import LaptopPrompt from '@/components/LaptopPrompt'
 
 interface Props {}
 const inter = Inter({ subsets: ['latin'] })
@@ -30,6 +31,7 @@ export default function RootLayout({
                 'min-h-screen font-sans antialiased grainy',
                 inter.className
             )}>
+              <LaptopPrompt/>
             <Toaster/>
             <div className="flex h-screen">
                 <Sidebar />

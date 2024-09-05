@@ -64,8 +64,8 @@ const ConfigurableChatbot: React.FC<ConfigurableChatbotProps> = ({ chatbotId }) 
   return (
     <div style={chatContainerStyle}>
       <ChatContextProvider chatbotId={chatbotId}>
-        <ChatHeader avatar={config?.logo} theme={theme} welcomeMessage={otherProps?.widget?.welcomeMessage} key={config?.id}/>
-        <Messages chatbotId={chatbotId} theme={theme} />
+        <ChatHeader avatar={config?.logo} theme={theme} welcomeMessage={config?.name!} key={config?.id}/>
+        <Messages chatbotId={chatbotId} theme={theme} welcomeMessage={otherProps.widget.welcomeMessage}/>
         <ChatInput  theme={theme} />
       </ChatContextProvider>
     </div>
