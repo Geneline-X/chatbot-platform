@@ -23,7 +23,7 @@ export const POST = async(req: NextRequest) => {
         const { chatbotId ,message, email, sessionId } = SendMessageValidators.parse(body)
 
         let chatbotUser = null;
-        if(!email && sessionId){
+        if(!email){
           throw new TRPCError({message: "email not found", code: "NOT_FOUND"})
             
          }

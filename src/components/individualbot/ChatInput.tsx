@@ -4,7 +4,7 @@ import React, { useContext } from 'react';
 import { Textarea } from '../ui/textarea';
 import { Button } from '../ui/button';
 import { Send } from 'lucide-react';
-import { ChatContex } from './ChatContext'
+import { ChatContex } from './ChatContext';
 import { isValidEmail } from '@/lib/utils';
 
 interface ChatInputProps {
@@ -23,7 +23,6 @@ interface ChatInputProps {
 const ChatInput: React.FC<ChatInputProps> = ({ theme }) => {
   const { message, handleInputChange, addMessage, isLoading, email } = useContext(ChatContex);
 
-
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -33,8 +32,15 @@ const ChatInput: React.FC<ChatInputProps> = ({ theme }) => {
 
   return (
     <div 
-    style={{ padding: '10px', backgroundColor: theme.backgroundColor, borderTop: '1px solid #E0E0E0', marginTop: 3 }}
-    className='flex justify-center bg-black'
+      style={{ 
+        padding: '10px', 
+        backgroundColor: theme.backgroundColor, 
+        borderTop: '1px solid #E0E0E0', 
+        marginTop: 3,
+        display: 'flex',
+        flexDirection: 'column', // Stack the input and footer vertically
+        alignItems: 'center',
+      }}
     >
       <div className="flex items-center w-full max-w-3xl space-x-2 lg:w-1/2">
         <Textarea
@@ -55,6 +61,18 @@ const ChatInput: React.FC<ChatInputProps> = ({ theme }) => {
           <Send />
         </Button>
       </div>
+      {/* "Powered by Geneline-X" text */}
+      <p 
+        style={{
+          marginTop: '8px',
+          fontSize: '12px',
+          color: theme.primaryColor || '#888',
+          fontFamily: theme.font,
+          textAlign: 'center'
+        }}
+      >
+        Powered by <strong>Geneline-X</strong>
+      </p>
     </div>
   );
 };
