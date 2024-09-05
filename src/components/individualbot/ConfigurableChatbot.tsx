@@ -60,7 +60,7 @@ const ConfigurableChatbot: React.FC<ConfigurableChatbotProps> = ({ chatbotId }) 
     overflow: 'hidden',
   };
 
- 
+ console.log(config?.name!)
   return (
     <div style={chatContainerStyle}>
       <ChatContextProvider chatbotId={chatbotId}>

@@ -60,7 +60,7 @@ const StandaloneChatbot: React.FC<StandaloneChatbotProps> = ({
  
   return (
     <div className="flex flex-col h-screen w-screen bg-zinc-50">
-      <ChatHeader avatar={config?.logo} theme={theme} welcomeMessage={otherProps?.widget?.welcomeMessage} key={config?.id} />
+      <ChatHeader avatar={config?.logo} theme={theme} welcomeMessage={config?.name!} key={config?.id} />
   
       <ChatContextProvider chatbotId={chatbotId}>
         
