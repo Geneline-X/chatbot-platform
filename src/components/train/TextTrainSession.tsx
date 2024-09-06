@@ -35,7 +35,7 @@ const TextTrainSession: React.FC = () => {
     try {
       let response;
       if (trainingMode === 'guided') {
-        response = await fetch("http://localhost:3800/chatbot-upload/text", {
+        response = await fetch("https://geneline-x-main-pipeline.vercel.app/chatbot-upload/text", {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
@@ -50,7 +50,7 @@ const TextTrainSession: React.FC = () => {
           toast({ title: "Conversations added" });
         }
       } else if (trainingMode === 'random') {
-        response = await fetch("http://localhost:3800/chatbot-upload/text", {
+        response = await fetch("https://geneline-x-main-pipeline.vercel.app/chatbot-upload/text", {
           method: "POST",
           headers: {
             "Content-Type": "application/json"

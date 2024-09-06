@@ -25,7 +25,7 @@ const Navbar = async() => {
                     </div>
                     {!user ? (
                         <div className='flex items-center space-x-4'>
-                            <Link href="/docs" 
+                            <Link href="https://geni-studio.vercel.app/docs" 
                                className={buttonVariants({ 
                                 variant: "ghost", size: "sm", 
                                 })}>
@@ -53,7 +53,7 @@ const Navbar = async() => {
                         })}>
                             Dashboard
                         </Link>
-                        <Link href="/chatbot-dashboard/docs" 
+                        <Link href="https://geni-studio.vercel.app/docs" 
                         className={buttonVariants({ 
                             variant: "ghost", size: "sm", 
                             })}>
