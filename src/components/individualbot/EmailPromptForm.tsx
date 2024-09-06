@@ -51,7 +51,7 @@ const EmailPromptForm = ({ onEmailSubmit, onSkip, theme, welcomeMessage }: Email
       </h2>
       <p
         className="text-sm"
-        style={{ color: theme.secondaryColor, fontSize: theme.fontSize }}
+        style={{ color: theme.backgroundColor, fontSize: theme.fontSize }}
       >
         Enter your email to save your chat messages. If you skip, your messages will be lost after the session.
       </p>
@@ -74,7 +74,7 @@ const EmailPromptForm = ({ onEmailSubmit, onSkip, theme, welcomeMessage }: Email
             type="submit"
             className="px-4 py-2 rounded-md"
             style={{
-              backgroundColor: theme.primaryColor,
+              backgroundColor: theme.chatBubbleUserColor,
               color: theme.fontColor,
               fontFamily: theme.font,
               fontSize: theme.fontSize,
