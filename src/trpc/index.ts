@@ -45,13 +45,12 @@ export const appRouter = router({
 
      const { businessId, name, systemInstruction, urlsToBusinessWebsite, customConfigurations } = input;
 
-     const systemInstructionFromAI = await generateSystemInstruction(systemInstruction)
-
+     
      const newChatbot = await db.chatbot.create({
         data: {
           businessId,
           name,
-          systemInstruction: systemInstructionFromAI,
+          systemInstruction,
           urlsToBusinessWebsite,
           customConfigurations,
         },
@@ -209,17 +208,49 @@ export const appRouter = router({
 
     return updatedChatbot;
    }),
-   deleteChatbot: PrivateProcedure.input(z.object({
+
+   deleteChatbot: publicProcedure.input(z.object({
     id: z.string()
-   })).mutation(async({input}) => {
+  })).mutation(async ({ input }) => {
     const { id } = input;
-
-    await db.chatbot.delete({
-      where: { id },
+  
+    console.log('this is the id: ', id);
+    
+    // Find the chatbot
+    const chatbot = await db.chatbot.findFirst({
+      where: { id }
     });
-
+    
+    if (!chatbot) {
+      throw new Error("Chatbot not found");
+    }
+  
+    // Check if a brand is associated with the chatbot
+    const brand = await db.brand.findFirst({
+      where: {
+        chatbotId: chatbot.id
+      }
+    });
+  
+    // Delete the associated brand if it exists
+    if (brand) {
+      await db.brand.delete({
+        where: {
+          id: brand.id
+        }
+      });
+    }
+  
+    // Now delete the chatbot
+    await db.chatbot.delete({
+      where: { id }
+    });
+  
+    console.log('Chatbot and associated brand deleted successfully');
+    
     return { success: true };
-   }),
+  }),
+  
 
    createBusiness: PrivateProcedure.input(z.object({
     name: z.string(),
