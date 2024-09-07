@@ -8,11 +8,15 @@ import { llm,genAI } from "@/lib/gemini";
 import { cosineSimilaritySearch, getFullContextFromFirestore } from "@/lib/elegance";
 import { PDFLoader } from "langchain/document_loaders/fs/pdf";
 import { Prisma } from "@prisma/client";
-import { storeInMemoryMessage, getInMemoryMessages, extractionInstruction } from "@/lib/utils";
+import { storeInMemoryMessage, getInMemoryMessages } from "@/lib/utils";
 import { TRPCError } from "@trpc/server";
 
 export const maxDuration = 300
-
+ const extractionInstruction = `
+You are an assistant whose job is to extract relevant information from the provided context and use it to answer the user's query. 
+Always refer to the context and prioritize information from it when generating your response.
+If no relevant information is found, let the user know and avoid providing unrelated information.
+`;
 
 export const POST = async(req: NextRequest) => {
     try {
