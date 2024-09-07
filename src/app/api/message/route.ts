@@ -76,8 +76,7 @@ export const POST = async(req: NextRequest) => {
           });
           
           const { contexts } = await cosineSimilaritySearch({message, chatbot})
-          const getAllContext = await getFullContextFromFirestore(chatbot?.name as string)
-          console.log(getAllContext)
+    
           const config = chatbot?.customConfigurations as Prisma.JsonObject
           //  console.log('this is the context of the: ',contexts)
           const chatConfigObject = {
