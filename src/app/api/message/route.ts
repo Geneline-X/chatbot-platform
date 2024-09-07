@@ -5,7 +5,7 @@ import { NextRequest } from "next/server";
 import { StreamingTextResponse } from "ai"
 import { ReadableStream } from "web-streams-polyfill/ponyfill";
 import { llm,genAI } from "@/lib/gemini";
-import { cosineSimilaritySearch, generateSystemInstruction } from "@/lib/elegance";
+import { cosineSimilaritySearch } from "@/lib/elegance";
 import { PDFLoader } from "langchain/document_loaders/fs/pdf";
 import { Prisma } from "@prisma/client";
 import { storeInMemoryMessage, getInMemoryMessages } from "@/lib/utils";
@@ -75,7 +75,7 @@ export const POST = async(req: NextRequest) => {
           
           const { contexts } = await cosineSimilaritySearch({message, chatbot})
           const config = chatbot?.customConfigurations as Prisma.JsonObject
-           
+           console.log('this is the context of the: ',contexts)
           const chatConfigObject = {
             maxOutputTokens: config?.maxOutputTokens as number || 2040,
             candidateCount: config?.responseCandidates as number,
@@ -85,11 +85,10 @@ export const POST = async(req: NextRequest) => {
             topP: config?.topP as number
           }
  
-          const systemInstructionFromAI = await generateSystemInstruction(chatbot?.systemInstruction as string)
-
+          
           const llm = genAI.getGenerativeModel({
             model:"gemini-1.5-flash",
-            systemInstruction: systemInstructionFromAI
+            systemInstruction: chatbot?.systemInstruction!
            })
         
         

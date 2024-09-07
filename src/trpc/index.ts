@@ -10,6 +10,7 @@ import { INFINITE_QUERY_LIMIT } from '@/config/infinite-query';
 //import { PLANS } from '@/config/stripe';
 import { v4 } from 'uuid'
 import { getInMemoryMessages } from '@/lib/utils';
+import { generateSystemInstruction } from '@/lib/elegance';
 
 export const appRouter = router({
     authCallback: publicProcedure.query(async() => {
@@ -44,11 +45,13 @@ export const appRouter = router({
 
      const { businessId, name, systemInstruction, urlsToBusinessWebsite, customConfigurations } = input;
 
+     const systemInstructionFromAI = await generateSystemInstruction(systemInstruction)
+
      const newChatbot = await db.chatbot.create({
         data: {
           businessId,
           name,
-          systemInstruction,
+          systemInstruction: systemInstructionFromAI,
           urlsToBusinessWebsite,
           customConfigurations,
         },
