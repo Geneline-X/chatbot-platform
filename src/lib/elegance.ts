@@ -226,3 +226,18 @@ export const generateSystemInstruction = async(useOfChatbot: string | undefined)
     console.log(error)
   }
 }
+
+export const getFullContextFromFirestore = async (chatbotName: string) => {
+  // Retrieve full context (pageText) from Firestore
+  const q = query(collection(vectordb, chatbotName));
+  const querySnapshot = await getDocs(q);
+  
+  // Collect full context
+  let fullContext = '';
+  querySnapshot.forEach((doc) => {
+    fullContext += doc.data().pageText + '\n\n'; // Append all pageText from Firestore
+  });
+
+  console.log(fullContext)
+  return fullContext.trim();
+};

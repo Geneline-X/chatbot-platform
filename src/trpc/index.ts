@@ -45,12 +45,12 @@ export const appRouter = router({
 
      const { businessId, name, systemInstruction, urlsToBusinessWebsite, customConfigurations } = input;
 
-     
+     const systemInstructionAI = await generateSystemInstruction(systemInstruction)
      const newChatbot = await db.chatbot.create({
         data: {
           businessId,
           name,
-          systemInstruction,
+          systemInstruction: systemInstructionAI,
           urlsToBusinessWebsite,
           customConfigurations,
         },
@@ -196,17 +196,21 @@ export const appRouter = router({
    })).mutation(async({input}) => {
     const { id, name, systemInstruction, urlsToBusinessWebsite, customConfigurations } = input;
 
-    const updatedChatbot = await db.chatbot.update({
-      where: { id },
-      data: {
-        name,
-        systemInstruction,
-        urlsToBusinessWebsite,
-        customConfigurations,
-      },
-    });
+    // Efficiently construct the update data by filtering out undefined values
+    const systemInstructionAI = await generateSystemInstruction(systemInstruction)
+      const updateData = {
+        ...(name && { name }),
+        ...(systemInstruction && { systemInstruction: systemInstructionAI }),
+        ...(urlsToBusinessWebsite && { urlsToBusinessWebsite }),
+        ...(customConfigurations && { customConfigurations }),
+      };
 
-    return updatedChatbot;
+      const updatedChatbot = await db.chatbot.update({
+        where: { id },
+        data: updateData,
+      });
+
+      return updatedChatbot;
    }),
 
    deleteChatbot: PrivateProcedure.input(z.object({
@@ -357,7 +361,6 @@ export const appRouter = router({
       return newBrand;
     }
     
-    
   }),
   getBrand: publicProcedure.input(z.object({
    chatbotId: z.string()
@@ -413,7 +416,6 @@ export const appRouter = router({
 
     return { success: true };
   }),
-
 })
 
 export type AppRouter = typeof appRouter;
