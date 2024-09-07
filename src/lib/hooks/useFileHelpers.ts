@@ -35,13 +35,13 @@ export const useFileHelpers = () => {
   const getEndpointByFileType = (fileType: string): string => {
     switch (fileType) {
       case 'image':
-        return 'http://localhost:3800/chatbot-upload/image';
+        return 'https://geneline-x-main-pipeline.vercel.app/chatbot-upload/image';
       case 'video':
-        return 'http://localhost:3800/chatbot-upload/video';
+        return 'https://geneline-x-main-pipeline.vercel.app/chatbot-upload/video';
       case 'audio':
-        return 'http://localhost:3800/chatbot-upload/audio';
+        return 'https://geneline-x-main-pipeline.vercel.app/chatbot-upload/audio';
       case 'pdf':
-        return 'http://localhost:3800/chatbot-upload/pdf';
+        return 'https://geneline-x-main-pipeline.vercel.app/chatbot-upload/pdf';
       default:
         throw new Error('Unsupported file type');
     }

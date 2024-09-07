@@ -209,7 +209,7 @@ export const appRouter = router({
     return updatedChatbot;
    }),
 
-   deleteChatbot: publicProcedure.input(z.object({
+   deleteChatbot: PrivateProcedure.input(z.object({
     id: z.string()
   })).mutation(async ({ input }) => {
     const { id } = input;

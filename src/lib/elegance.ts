@@ -215,12 +215,12 @@ export const generateSystemInstruction = async(useOfChatbot: string | undefined)
   try {
     
     const result = await llm.generateContent(
-      `Write a system instruction for the use case of this chatbot:\n\n${useOfChatbot}.
-      Note the generate system instruction will help guide the model how to behave, 
-      don't demonstrate let it be concise, because i am passing your response directly 
-      as the system instruction of the model`
+      `Craft a concise and informative system instruction for the Gemini model to guide its responses in the following use case: 
+      \n\n${useOfChatbot}.
+      The instruction should be clear, specific, and aligned with the desired behavior.`
     );
     const response = result.response.text();
+    console.log("this is the system instruction: ", response)
     return response
   } catch (error) {
     console.log(error)
