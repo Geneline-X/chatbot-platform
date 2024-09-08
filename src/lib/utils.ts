@@ -10,7 +10,7 @@ export function cn(...inputs: ClassValue[]) {
 export function constructMetaData({
   title =  "GeniStudio - the Platform to fully build and customize your chatbots with no code",
   description = "GeniStudio is Platform that makes building chatbots easily, with no code at all.",
-  image = "/genistudio-cover.png",
+  image = "images/icons/icon-512x512.png",
   icons = "/favicon.ico",
   noIndex = false,
   manifest="/manifest.json"
