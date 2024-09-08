@@ -41,6 +41,7 @@ export default function RootLayout({
             
             {/* Children container with same z-index */}
             <main className="flex-1 p-6 bg-gray-100 overflow-auto z-50">
+            <LaptopPrompt />
               {children}
             </main>
           </div>

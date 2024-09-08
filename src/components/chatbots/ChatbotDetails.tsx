@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import MessagesList from "../MessageList";
 import FilesList from "../FilesList";
 import Configurations from "../Configurations";
@@ -11,6 +11,7 @@ import { toast } from "../ui/use-toast";
 import Link from "next/link";
 import ExportChatbotModal from "./ExportChatbotModal";
 import { Loader2 } from "lucide-react";
+import { MyLoader } from "../MyLoader";
 
 const ChatbotDetails = ({ chatbot, onBack }: ChatbotDetailsProps) => {
   const router = useRouter();
@@ -18,8 +19,41 @@ const ChatbotDetails = ({ chatbot, onBack }: ChatbotDetailsProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [embedCode, setEmbedCode] = useState("");
   const [loading, setLoading] = useState(false);
+  const [messagesData, setMessagesData] = useState<{ frequentlyAskedQuestions: string[], sentimentAnalysis: Record<string, number> } | null>(null);
+  const [isLoadingMessages, setIsLoadingMessages] = useState(true);
+  const isFetchingRef = useRef(false);
 
-  console.log(chatbot)
+  useEffect(() => {
+    const fetchMessagesData = async () => {
+      if (isFetchingRef.current) return; // Prevent multiple fetches
+
+      try {
+        isFetchingRef.current = true;
+        setIsLoadingMessages(true);
+
+        const response = await fetch(`/api/getmessagesanalysis`, {
+          method: 'POST',
+          body: JSON.stringify({ chatbotId: chatbot.id}),
+        });
+        const data = await response.json();
+        
+        console.log(data.analysis);
+        setMessagesData(data.analysis);
+      } catch (error) {
+        toast({
+          title: "Error fetching data",
+          description: "Failed to retrieve analysis data.",
+          variant: "destructive",
+        });
+        console.error(error);
+      } finally {
+        isFetchingRef.current = false;
+        setIsLoadingMessages(false);
+      }
+    };
+
+    fetchMessagesData();
+  }, [chatbot.id]);
   const handleCustomizeClick = () => {
     setCurrentChatbot(chatbot);
     toast({
@@ -81,15 +115,14 @@ const ChatbotDetails = ({ chatbot, onBack }: ChatbotDetailsProps) => {
       </div>
 
       <div className="space-y-6">
-        <div className="p-4 bg-gray-50 rounded-lg shadow-sm">
-          <h2 className="text-2xl font-semibold mb-2">Messages</h2>
-          <MessagesList chatbotMessages={chatbot.message} />
-        </div>
-
-        <div className="p-4 bg-gray-50 rounded-lg shadow-sm">
-          <h2 className="text-2xl font-semibold mb-2">Files</h2>
-          <FilesList chatbotId={chatbot.id} />
-        </div>
+      <div className="p-4 bg-gray-50 rounded-lg shadow-sm">
+          <h2 className="text-2xl font-semibold mb-3">Message Analysis</h2>
+          {isLoadingMessages ? (
+            <MyLoader /> 
+          ) : (
+            <MessagesList messagesData={messagesData} />
+          )}
+      </div>
 
         <div className="p-4 bg-gray-50 rounded-lg shadow-sm">
           <h2 className="text-2xl font-semibold mb-2">Custom Configurations</h2>
