@@ -88,6 +88,7 @@ export const appRouter = router({
       include: {
         file: true,
         message: true,
+        chatbotUsers:true,
         brands: true,
         urlFiles: true,
       },
@@ -293,6 +294,35 @@ export const appRouter = router({
   
       return businesses;
    }),
+   getUsersForBusiness: PrivateProcedure.input(z.object({
+    businessId: z.string()
+  })).query(async ({ input }) => {
+    const { businessId } = input;
+
+    // Fetch all chatbots for the given business
+    const chatbots = await db.chatbot.findMany({
+      where: { businessId },
+      include: {
+        chatbotUsers: {
+          select: {
+            email: true,
+          }
+        }
+      },
+    });
+
+    // Extract all unique user emails from the chatbots
+    const userEmails = new Set<string>();
+    chatbots.forEach(chatbot => {
+      chatbot.chatbotUsers.forEach(user => {
+        if (user.email) {
+          userEmails.add(user.email);
+        }
+      });
+    });
+
+    return userEmails;
+  }),
 
    updateBusiness: PrivateProcedure.input(z.object({
     id: z.string(),

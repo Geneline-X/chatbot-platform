@@ -115,3 +115,7 @@
     display: flex;
   }
 }
+
+.sidebar-link {
+  @apply flex items-center space-x-3 p-3 rounded-lg transition-colors duration-300 text-gray-700 hover:bg-blue-300 hover:text-white;
+}
