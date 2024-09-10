@@ -120,16 +120,20 @@ const Messages = ({ chatbotId, theme, welcomeMessage}: MessagesProps) => {
 
 
   if (messages?.length === 0 && showEmailPrompt) {
-    return <EmailPromptForm 
-    onEmailSubmit={handleEmailSubmit} 
-    onSkip={handleSkip} 
-    theme={theme}
-    welcomeMessage={welcomeMessage}
-    />
+    return (
+      <div className="flex-1 flex items-center justify-center">
+        <EmailPromptForm 
+          onEmailSubmit={handleEmailSubmit} 
+          onSkip={handleSkip} 
+          theme={theme}
+          welcomeMessage={welcomeMessage}
+        />
+      </div>
+    );
   }
 
   return (
-    <div className='flex max-h-[calc(100vh-3.5rem-7rem)] border-zinc-200 flex-1 flex-col-reverse gap-4 p-3 overflow-auto scrollbar-thumb-blue scrollbar-thumb-rounded scrollbar-track-blue-lighter scrollbar-w-2 scrolling-touch whitespace-normal break-words'>
+    <div className='flex-1 flex flex-col-reverse gap-4 overflow-y-auto scrollbar-thumb-blue scrollbar-thumb-rounded scrollbar-track-blue-lighter scrollbar-w-2 scrolling-touch'>
       {combinedMessages && combinedMessages.length > 0 ? (
         combinedMessages.map((message, i) => {
           const isNextMessageSamePerson = combinedMessages[i - 1]?.isUserMessage ===
@@ -159,8 +163,8 @@ const Messages = ({ chatbotId, theme, welcomeMessage}: MessagesProps) => {
           <Skeleton className='bg-zinc-300 dark:bg-zinc-800' count={10} />
         </div>
       ) : (
-        <div className='mx-auto flex w-full flex-1 flex-col justify-center gap-3 p-4 text-center'>
-          <MessageSquare className='mx-auto h-10 w-10 text-zinc-400' />
+        <div className='flex-1 flex flex-col items-center justify-center gap-3 p-4 text-center'>
+          <MessageSquare className='h-10 w-10 text-zinc-400' />
           <span className='text-sm text-zinc-400'>{welcomeMessage}</span>
         </div>
       )}

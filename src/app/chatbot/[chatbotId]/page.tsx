@@ -12,9 +12,7 @@ const Page = ({ params } : ChatbotPageProps) => {
     const  { chatbotId } = params
 
   return (
-    <div>
-        <StandaloneChatbot chatbotId={chatbotId}/>
-    </div>
+    <StandaloneChatbot chatbotId={chatbotId}/>
   )
 }
 

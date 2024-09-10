@@ -27,7 +27,7 @@ const UserAccountNav = async({email, imageUrl, name}: UserAccountNavProps) => {
               <Avatar className='relative w-8 h-8'>
                 {imageUrl ? (
                     <div className='relative aspect-square h-full w-full'>
-                        <Image fill src={imageUrl} alt='profile picture' referrerPolicy='no-referrer'/>
+                        <img src={imageUrl} alt='profile picture' referrerPolicy='no-referrer'/>
                     </div>
                 ): <AvatarFallback>
                       <span className='sr-only'>{name}</span>

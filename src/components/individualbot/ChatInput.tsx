@@ -6,6 +6,7 @@ import { Button } from '../ui/button';
 import { Send } from 'lucide-react';
 import { ChatContex } from './ChatContext';
 import { isValidEmail } from '@/lib/utils';
+// import { PaperPlaneIcon } from 'lucide-react';
 
 interface ChatInputProps {
   theme: {
@@ -33,16 +34,17 @@ const ChatInput: React.FC<ChatInputProps> = ({ theme }) => {
   return (
     <div 
       style={{ 
-        padding: '10px', 
+        padding: '16px', 
         backgroundColor: theme.backgroundColor, 
-        borderTop: '1px solid #E0E0E0', 
+        borderTop: `1px solid ${theme.primaryColor}20`, 
         marginTop: 3,
         display: 'flex',
-        flexDirection: 'column', // Stack the input and footer vertically
+        flexDirection: 'column',
         alignItems: 'center',
       }}
     >
-      <div className="flex items-center w-full max-w-3xl space-x-2 lg:w-1/2">
+      {isValidEmail(email) ? (
+        <div className="flex items-center w-full max-w-3xl space-x-2">
         <Textarea
           placeholder='Type a message...'
           value={message}
@@ -51,7 +53,8 @@ const ChatInput: React.FC<ChatInputProps> = ({ theme }) => {
           style={{ 
             backgroundColor: 'transparent', 
             color: theme.fontColor || '#000', 
-            border: `1px solid ${theme.primaryColor}` 
+            border: `1px solid ${theme.primaryColor}`,
+            width: '100%',
           }}
           className="flex-1 resize-none p-2"
           rows={1}
@@ -61,18 +64,29 @@ const ChatInput: React.FC<ChatInputProps> = ({ theme }) => {
           <Send />
         </Button>
       </div>
-      {/* "Powered by Geneline-X" text */}
-      <p 
+       ):null}
+      
+      
+      <div 
         style={{
-          marginTop: '8px',
-          fontSize: '12px',
-          color: theme.primaryColor || '#888',
-          fontFamily: theme.font,
-          textAlign: 'center'
+          marginTop: '12px',
+          padding: '6px 12px',
+          borderRadius: '20px',
+          backgroundColor: `${theme.primaryColor}10`,
+          display: 'inline-block',
         }}
       >
-        Powered by <strong>Geneline-X</strong>
-      </p>
+        <p 
+          style={{
+            fontSize: '12px',
+            color: theme.primaryColor,
+            fontFamily: theme.font,
+            fontWeight: 500,
+          }}
+        >
+          Powered by <span style={{ fontWeight: 700 }}>Geneline-X</span>
+        </p>
+      </div>
     </div>
   );
 };

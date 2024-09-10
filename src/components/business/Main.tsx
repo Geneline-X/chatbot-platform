@@ -9,6 +9,8 @@ import { trpc } from '@/app/_trpc/client';
 import { Loader2, Plus, Trash, Ghost } from 'lucide-react'; // Ensure you have the appropriate icons
 import { Button } from '../ui/button';
 import { Business } from './types';
+import { motion } from 'framer-motion';
+import { Sparkles } from 'lucide-react';
 
 type BusinessSave = Omit<BusinessFromProps, 'id'>
 
@@ -68,17 +70,28 @@ const Main = () => {
   };
 
   return (
-    <div className="max-w-3xl mx-auto mt-8">
+    <div className="max-w-4xl mx-auto mt-8">
       {isCreating ? (
-        <CreateBusinessForm isLoading={creatingLoading} onSave={handleSaveBusiness} onCancel={handleCancel} />
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <CreateBusinessForm isLoading={creatingLoading} onSave={handleSaveBusiness} onCancel={handleCancel} />
+        </motion.div>
       ) : (
-        <div className="flex justify-end mb-4">
+        <motion.div
+          className="flex justify-center mb-8"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
           <Button
             onClick={() => setIsCreating(true)}
-            >
-            <Plus /> Create Business
+            className="text-lg px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md transition duration-300 ease-in-out"
+          >
+            Create New Business
           </Button>
-        </div>
+        </motion.div>
       )}
       {isLoading ? (
         <div className="flex justify-center items-center">

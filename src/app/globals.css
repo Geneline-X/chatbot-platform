@@ -119,3 +119,9 @@
 .sidebar-link {
   @apply flex items-center space-x-3 p-3 rounded-lg transition-colors duration-300 text-gray-700 hover:bg-blue-300 hover:text-white;
 }
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}

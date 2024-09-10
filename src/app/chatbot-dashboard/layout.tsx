@@ -18,34 +18,25 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-
   return (
-    <html lang="en">
+    <html lang="en" className="h-full bg-gray-50">
       <head>
         <meta name="google-site-verification" content="xqSq2gtf73XFTo_Z-8FEfgbwYD2xrJuZ8ityqXyGL4s" />
       </head>
-      <body className={cn('min-h-screen font-sans antialiased bg-gray-50', inter.className)}>
-        <LaptopPrompt />
-        <Toaster />
-        <div className="relative flex h-screen">
-          
-          {/* Sidebar with z-index */}
-          <div className="fixed top-0 left-0 h-full w-64 z-50">
+      <body className={cn('h-full font-sans antialiased', inter.className)}>
+        <div className="min-h-screen bg-gray-100">
+          <Navbar />
+          <div className="flex h-[calc(100vh-4rem)]">
             <Sidebar />
-          </div>
-          
-          {/* Main content */}
-          <div className="flex-1 flex flex-col ml-64 z-50">
-            {/* Navbar with same z-index */}
-            <Navbar />
-            
-            {/* Children container with same z-index */}
-            <main className="flex-1 p-6 bg-gray-100 overflow-auto z-50">
-            <LaptopPrompt />
-              {children}
+            <main className="flex-1 overflow-y-auto bg-white p-8">
+              <div className="mx-auto max-w-7xl">
+                <LaptopPrompt />
+                {children}
+              </div>
             </main>
           </div>
         </div>
+        <Toaster />
         <SpeedInsights />
         <Analytics />
       </body>

@@ -1,11 +1,14 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useChatbot } from '../business/BusinessContext';
 import { toast } from '../ui/use-toast';
-import { Loader2 } from 'lucide-react';
+import { Loader2, ChevronDown, ChevronUp } from 'lucide-react';
 import { Textarea } from '../ui/textarea';
 import { Input } from '../ui/input';
+import { Button } from '../ui/button';
+import { Progress } from '../ui/progress';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const TextTrainSession: React.FC = () => {
   const [trainingMode, setTrainingMode] = useState<'guided' | 'random' | null>(null);
@@ -14,8 +17,12 @@ const TextTrainSession: React.FC = () => {
   const [currentQuestion, setCurrentQuestion] = useState<string>('');
   const [currentAnswer, setCurrentAnswer] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
- 
-  const { currentChatbot } = useChatbot()
+  const [trainingProgress, setTrainingProgress] = useState<number>(0);
+  const [showFullText, setShowFullText] = useState<boolean>(false);
+  const [showFullTextarea, setShowFullTextarea] = useState<boolean>(false);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const { currentChatbot } = useChatbot();
 
   const handleAddGuidedConversation = () => {
     if (currentQuestion && currentAnswer) {
@@ -32,6 +39,7 @@ const TextTrainSession: React.FC = () => {
     }
 
     setLoading(true);
+    setTrainingProgress(0);
     try {
       let response;
       if (trainingMode === 'guided') {
@@ -46,9 +54,6 @@ const TextTrainSession: React.FC = () => {
             conversations: guidedConversations
           })
         });
-        if (response.ok) {
-          toast({ title: "Conversations added" });
-        }
       } else if (trainingMode === 'random') {
         response = await fetch("https://geneline-x-main-pipeline.vercel.app/chatbot-upload/text", {
           method: "POST",
@@ -61,92 +66,175 @@ const TextTrainSession: React.FC = () => {
             mode: 'random'
           })
         });
-        if (response.ok) {
-          toast({ title: "Data added"});
-        }
       }
-      if (!response?.ok) {
+      if (response?.ok) {
+        simulateTraining();
+        toast({ title: trainingMode === 'guided' ? "Conversations added" : "Data added" });
+      } else {
         toast({ title: "Error training chatbot", variant: "destructive" });
       }
     } catch (error) {
       toast({ title: "Error training chatbot", variant: "destructive" });
       console.error('Error training chatbot:', error);
-    } finally {
-      setLoading(false);
     }
   };
 
+  const simulateTraining = () => {
+    let progress = 0;
+    const interval = setInterval(() => {
+      progress += Math.random() * 10;
+      if (progress >= 100) {
+        progress = 100;
+        clearInterval(interval);
+        setLoading(false);
+      }
+      setTrainingProgress(progress);
+    }, 500);
+  };
+
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = showFullTextarea ? 'auto' : '100px';
+      if (showFullTextarea) {
+        textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+      }
+    }
+  }, [showFullTextarea, randomText]);
+
   return (
-    <div className="p-4 bg-gray-50">
-      <h2 className="text-xl mb-4">Train Chatbot</h2>
-      
-      <div className="mb-4">
-        <button onClick={() => setTrainingMode('guided')} className="mr-2 px-4 py-2 bg-blue-500 text-white rounded">
+    <div className="space-y-6">
+      <div className="flex space-x-4">
+        <Button 
+          onClick={() => setTrainingMode('guided')} 
+          variant={trainingMode === 'guided' ? 'default' : 'outline'}
+        >
           Guided Conversation
-        </button>
-        <button onClick={() => setTrainingMode('random')} className="px-4 py-2 bg-green-500 text-white rounded">
+        </Button>
+        <Button 
+          onClick={() => setTrainingMode('random')} 
+          variant={trainingMode === 'random' ? 'default' : 'outline'}
+        >
           Random Text
-        </button>
+        </Button>
       </div>
 
-      {trainingMode === 'guided' && (
-        <div className="bg-white p-4 shadow rounded">
-          <h3 className="text-lg mb-2">Guided Conversation</h3>
-          <div className="mb-2">
+      <AnimatePresence mode="wait">
+        {trainingMode === 'guided' && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="space-y-4"
+          >
             <Input
-              type="text"
               value={currentQuestion}
               onChange={(e) => setCurrentQuestion(e.target.value)}
               placeholder="Enter question"
-              className="p-2 border border-gray-300 rounded w-full"
+              className="w-full"
             />
-          </div>
-          <div className="mb-2">
             <Input
-              type="text"
               value={currentAnswer}
               onChange={(e) => setCurrentAnswer(e.target.value)}
               placeholder="Enter answer"
-              className="p-2 border border-gray-300 rounded w-full"
+              className="w-full"
             />
-          </div>
-          <button onClick={handleAddGuidedConversation} className="px-4 py-2 bg-blue-500 text-white rounded">
-            Add Conversation
-          </button>
+            <Button onClick={handleAddGuidedConversation}>
+              Add Conversation
+            </Button>
 
-          <div className="mt-4">
-            <h4 className="text-md">Conversations:</h4>
-            <ul className="list-disc pl-5">
-              {guidedConversations.map((conv, index) => (
-                <li key={index} className="mb-1">{conv.question}: {conv.answer}</li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      )}
+            <div className="mt-4">
+              <h4 className="text-lg font-semibold mb-2">Conversations:</h4>
+              <ul className="space-y-2">
+                {guidedConversations.map((conv, index) => (
+                  <li key={index} className="bg-gray-100 p-2 rounded">
+                    <strong>Q:</strong> {conv.question}<br />
+                    <strong>A:</strong> {conv.answer}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </motion.div>
+        )}
 
-      {trainingMode === 'random' && (
-        <div className="bg-white p-4 shadow rounded">
-          <h3 className="text-lg mb-2">Random Text Input</h3>
-          <Textarea
-            value={randomText}
-            onChange={(e) => setRandomText(e.target.value)}
-            placeholder="Paste your text here"
-            className="p-2 border border-gray-300 rounded w-full h-32"
-            minRows={4}
-          />
-        </div>
-      )}
+        {trainingMode === 'random' && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="space-y-4"
+          >
+            <div className="relative">
+              <Textarea
+                ref={textareaRef}
+                value={randomText}
+                onChange={(e) => setRandomText(e.target.value)}
+                placeholder="Paste your text here"
+                className={`w-full transition-all duration-300 ease-in-out ${showFullTextarea ? '' : 'max-h-[100px] overflow-hidden'}`}
+              />
+              {randomText.split('\n').length > 4 && (
+                <Button 
+                  variant="link" 
+                  onClick={() => setShowFullTextarea(!showFullTextarea)}
+                  className="absolute bottom-2 right-2 bg-white"
+                >
+                  {showFullTextarea ? (
+                    <>
+                      Show Less <ChevronUp className="ml-2" />
+                    </>
+                  ) : (
+                    <>
+                      Show More <ChevronDown className="ml-2" />
+                    </>
+                  )}
+                </Button>
+              )}
+            </div>
+            <div className="mt-2">
+              <h4 className="text-lg font-semibold mb-2">Preview:</h4>
+              {randomText.split('\n').length > 3 && (
+                <Button 
+                  variant="link" 
+                  onClick={() => setShowFullText(!showFullText)}
+                  className="flex items-center"
+                >
+                  {showFullText ? 'Show Less' : 'Show More'}
+                  {showFullText ? <ChevronUp className="ml-2" /> : <ChevronDown className="ml-2" />}
+                </Button>
+              )}
+              <pre className="bg-gray-100 p-4 rounded overflow-x-auto max-h-[200px] overflow-y-auto">
+                {showFullText ? randomText : (
+                  <>
+                    {randomText.split('\n').slice(0, 3).join('\n')}
+                    {randomText.split('\n').length > 3 && '...'}
+                  </>
+                )}
+              </pre>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {trainingMode && (
         <div className="mt-4">
-          <button 
-          onClick={handleTrain} 
-          className="px-4 py-2 bg-purple-500 text-white rounded"
-          disabled={loading}
+          <Button 
+            onClick={handleTrain} 
+            disabled={loading}
+            className="w-full"
           >
-            {loading ? <Loader2 className='h-4 w-4 animate-spin'/> : 'Train Chatbot'}
-          </button>
+            {loading ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : null}
+            Train Chatbot
+          </Button>
+        </div>
+      )}
+
+      {loading && (
+        <div className="mt-4 space-y-2">
+          <Progress value={trainingProgress} className="w-full" />
+          <p className="text-sm text-gray-500 text-center">
+            Training in progress: {trainingProgress.toFixed(0)}%
+          </p>
         </div>
       )}
     </div>

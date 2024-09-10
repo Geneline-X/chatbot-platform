@@ -1,12 +1,10 @@
 "use client"
 import React, { useState } from 'react'
 import ChatbotsList from '@/components/chatbots/ChatbotList'
-import ChatbotForm from '@/components/chatbots/ChatbotForm'
+import InteractiveChatbotCreationAndDesign from '@/components/chatbots/InteractiveChatbotCreation'
 import ChatbotDetails from '@/components/chatbots/ChatbotDetails'
-import MaxWidthWrapper from '@/components/MaxWidthWrapper'
 import { Button } from '@/components/ui/button'
-
-interface Props {}
+import { PlusCircle } from 'lucide-react'
 
 const Main = () => {
     const [selectedChatbot, setSelectedChatbot] = useState(null)
@@ -22,23 +20,24 @@ const Main = () => {
       setIsCreating(true)
     }
 
-  return (
-    <MaxWidthWrapper>
-       <h1 className="text-2xl font-bold mb-4">Chatbots</h1>
-      {selectedChatbot ? (
-        <ChatbotDetails chatbot={selectedChatbot} onBack={() => setSelectedChatbot(null)} />
-      ) : isCreating ? (
-        <ChatbotForm onSave={() => setIsCreating(false)} onCancel={() => setIsCreating(false)} />
-      ) : (
-        <div>
-          <Button  onClick={handleCreateNew}>
-            Create New Chatbot
-          </Button>
-          <ChatbotsList onSelect={handleChatbotSelect} />
+    return (
+        <div className="container mx-auto p-6">
+            <h1 className="text-3xl font-bold mb-8">Your Chatbots</h1>
+            {selectedChatbot ? (
+                <ChatbotDetails chatbot={selectedChatbot} onBack={() => setSelectedChatbot(null)} />
+            ) : isCreating ? (
+                <InteractiveChatbotCreationAndDesign onComplete={() => setIsCreating(false)} onCancel={() => setIsCreating(false)} />
+            ) : (
+                <div>
+                    <Button onClick={handleCreateNew} className="mb-6 bg-blue-600 hover:bg-blue-700 text-white">
+                        <PlusCircle className="mr-2 h-5 w-5" />
+                        Create New Chatbot
+                    </Button>
+                    <ChatbotsList onSelect={handleChatbotSelect} />
+                </div>
+            )}
         </div>
-      )}
-  </MaxWidthWrapper>
-  )
+    )
 }
 
 export default Main
