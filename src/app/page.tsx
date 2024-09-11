@@ -1,13 +1,11 @@
+
 import MaxWidthWrapper from "@/components/MaxWidthWrapper";
 import Link from "next/link";
-import { ArrowRight, Bot, Code, BarChart, Globe, MessageSquare, Zap, Shield } from "lucide-react";
+import { ArrowRight, Bot, Code, BarChart, Check, Globe, MessageSquare, Zap, Shield } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import Image from "next/image";
 import { RegisterLink, getKindeServerSession } from '@kinde-oss/kinde-auth-nextjs/server';
 import Navbar from "@/components/Navbar";
-import AnimatedHero from "@/components/AnimatedHero";
-
-//import ContactForm from "@/components/ContactForm";
 
 export default async function Home() {
   const { getUser } = getKindeServerSession();
@@ -31,55 +29,128 @@ export default async function Home() {
     <>
       <Navbar />
       <MaxWidthWrapper className="mb-12 mt-28 sm:mt-40 flex flex-col items-center justify-center text-center">
-        <AnimatedHero isLoggedIn={!!user} />
+        <div className="mx-auto mb-4 flex max-w-fit items-center justify-center space-x-2 overflow-hidden rounded-full border border-gray-200 bg-white px-7 py-2 shadow-md backdrop-blur transition-all hover:border-gray-300 hover:bg-white/50">
+          <p className="text-sm font-semibold text-gray-700">
+            GeniStudio is now live!
+          </p>
+        </div>
+        <h1 className="max-w-4xl text-5xl font-bold md:text-6xl lg:text-7xl">
+          Create Custom Chatbots with Ease on <span className="text-blue-600">GeniStudio</span>
+        </h1>
+        <p className="mt-5 max-w-prose text-zinc-700 sm:text-lg">
+          GeniStudio empowers businesses to build and deploy customized chatbots in minutes without any coding. Enhance customer engagement across multiple platforms and streamline your operations.
+        </p>
+
+        <div className="mt-8 flex flex-col sm:flex-row gap-4">
+          {user ? (
+            <Link href="/chatbot-dashboard" className={buttonVariants({ size: "lg" })}>
+              Go to Dashboard <ArrowRight className="ml-2 h-5 w-5" />
+            </Link>
+          ) : (
+            <RegisterLink className={buttonVariants({ size: "lg" })}>
+              Get Started <ArrowRight className="ml-2 h-5 w-5" />
+            </RegisterLink>
+          )}
+          <Link href="#features" className={buttonVariants({ variant: "outline", size: "lg" })}>
+            Learn More
+          </Link>
+        </div>
+
+        <div className="mt-16 flex justify-center">
+          <div className="relative w-full max-w-lg">
+            <div className="absolute top-0 -left-4 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
+            <div className="absolute top-0 -right-4 w-72 h-72 bg-yellow-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+            <div className="absolute -bottom-8 left-20 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+            <div className="relative">
+              <Image
+                src="/genistudio-dash.png"
+                width={600}
+                height={400}
+                alt="Dashboard preview"
+                className="rounded-md shadow-2xl border border-gray-200"
+              />
+            </div>
+          </div>
+        </div>
       </MaxWidthWrapper>
 
-      <div className="mx-auto max-w-5xl px-6 lg:px-8 mt-32 sm:mt-56" id="features">
-        <div className="mb-12 flex flex-col items-center justify-center text-center">
-          <h2 className="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">Everything you need to create amazing chatbots</h2>
-          <p className="mt-4 text-lg text-gray-600">
-            GeniStudio provides all the tools and features you need to build, customize, and deploy chatbots that engage your audience across multiple channels.
-          </p>
-        </div>
-
-        <div className="mt-16 grid grid-cols-1 gap-y-16 sm:grid-cols-2 lg:grid-cols-3 lg:gap-x-8">
-          {features.map((feature) => (
-            <div key={feature.title} className="flex flex-col items-center">
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-blue-500 text-white">
-                <feature.icon className="h-8 w-8" />
+      <div className="bg-gray-50 py-20">
+        <MaxWidthWrapper>
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 sm:text-4xl mb-4">Why Choose GeniStudio?</h2>
+            <p className="text-xl text-gray-600">Powerful features to supercharge your customer interactions</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {features.map((feature) => (
+              <div key={feature.title} className="bg-white p-6 rounded-lg shadow-md">
+                <div className="flex items-center justify-center w-12 h-12 bg-blue-100 text-blue-600 rounded-full mb-4">
+                  <feature.icon className="h-6 w-6" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
+                <p className="text-gray-600">{feature.description}</p>
               </div>
-              <h3 className="mt-6 text-lg font-semibold leading-8 tracking-tight text-gray-900">{feature.title}</h3>
-              <p className="mt-2 text-base text-center text-gray-600">{feature.description}</p>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        </MaxWidthWrapper>
       </div>
 
-      <div className="mx-auto max-w-7xl px-6 lg:px-8 mt-32 sm:mt-56">
-        <div className="mb-12 flex flex-col items-center justify-center text-center">
-          <h2 className="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">Deploy Across Multiple Channels</h2>
-          <p className="mt-4 text-lg text-gray-600">
-            Reach your customers wherever they are. GeniStudio allows you to deploy your chatbots across various platforms.
-          </p>
+      <MaxWidthWrapper className="py-20">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-bold text-gray-900 sm:text-4xl mb-4">Deploy Across Multiple Channels</h2>
+          <p className="text-xl text-gray-600">Reach your customers wherever they are</p>
         </div>
         <div className="flex flex-wrap justify-center gap-4">
           {deploymentChannels.map((channel) => (
-            <div key={channel} className="bg-gray-100 rounded-full px-4 py-2 text-sm font-medium text-gray-800">
+            <div key={channel} className="bg-blue-100 text-blue-800 rounded-full px-6 py-3 text-sm font-medium">
               {channel}
             </div>
           ))}
         </div>
+      </MaxWidthWrapper>
+
+      <div className="bg-blue-600 text-white py-20">
+        <MaxWidthWrapper>
+          <div className="text-center">
+            <h2 className="text-3xl font-bold sm:text-4xl mb-4">Ready to transform your customer interactions?</h2>
+            <p className="text-xl mb-8">Join thousands of businesses already using GeniStudio to create engaging chatbots across multiple platforms.</p>
+            {user ? (
+              <Link href="/chatbot-dashboard" className={buttonVariants({ size: "lg", variant: "secondary" })}>
+                Go to Dashboard <ArrowRight className="ml-2 h-5 w-5" />
+              </Link>
+            ) : (
+              <RegisterLink className={buttonVariants({ size: "lg", variant: "secondary" })}>
+                Get Started <ArrowRight className="ml-2 h-5 w-5" />
+              </RegisterLink>
+            )}
+          </div>
+        </MaxWidthWrapper>
       </div>
 
-      <div className="mx-auto max-w-7xl px-6 lg:px-8 mt-32 sm:mt-56 mb-16">
-        <div className="flex flex-col items-center justify-center text-center">
-          <h2 className="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">Ready to transform your customer interactions?</h2>
-          <p className="mt-4 text-lg text-gray-600">
-            Join thousands of businesses already using GeniStudio to create engaging chatbots across multiple platforms.
-          </p>
-          <AnimatedHero isLoggedIn={!!user} />
+      <MaxWidthWrapper className="py-20">
+        <div className="grid md:grid-cols-2 gap-12 items-center">
+          <div>
+            <h2 className="text-3xl font-bold mb-4">Start Building Your Chatbot Today</h2>
+            <p className="text-xl text-gray-600 mb-6">Create, customize, and deploy your chatbot in minutes with our intuitive platform.</p>
+            <ul className="space-y-4">
+              {['Easy to use interface', 'AI-powered responses', 'Multi-channel support', 'Detailed analytics'].map((item) => (
+                <li key={item} className="flex items-center">
+                  <Check className="h-6 w-6 text-green-500 mr-2" />
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="relative">
+            <Image
+              src="/chatbot-builder.png"
+              width={500}
+              height={400}
+              alt="Chatbot builder interface"
+              className="rounded-lg shadow-xl"
+            />
+          </div>
         </div>
-      </div>
+      </MaxWidthWrapper>
     </>
   );
 }

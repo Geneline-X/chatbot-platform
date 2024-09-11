@@ -21,6 +21,7 @@ const ChatbotDetails = ({ chatbot, onBack }: ChatbotDetailsProps) => {
   const [loading, setLoading] = useState(false);
   const [messagesData, setMessagesData] = useState<{ frequentlyAskedQuestions: string[], sentimentAnalysis: Record<string, number> } | null>(null);
   const [isLoadingMessages, setIsLoadingMessages] = useState(true);
+  const [hasError, setHasError] = useState(false);
   const isFetchingRef = useRef(false);
 
   useEffect(() => {
@@ -30,22 +31,28 @@ const ChatbotDetails = ({ chatbot, onBack }: ChatbotDetailsProps) => {
       try {
         isFetchingRef.current = true;
         setIsLoadingMessages(true);
+        setHasError(false);
 
         const response = await fetch(`/api/getmessagesanalysis`, {
           method: 'POST',
-          body: JSON.stringify({ chatbotId: chatbot.id}),
+          body: JSON.stringify({ chatbotId: chatbot.id }),
         });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch messages data');
+        }
+
         const data = await response.json();
         
-        console.log(data.analysis);
         setMessagesData(data.analysis);
       } catch (error) {
+        console.error(error);
+        setHasError(true);
         toast({
           title: "Error fetching data",
           description: "Failed to retrieve analysis data.",
           variant: "destructive",
         });
-        console.error(error);
       } finally {
         isFetchingRef.current = false;
         setIsLoadingMessages(false);
@@ -118,9 +125,19 @@ const ChatbotDetails = ({ chatbot, onBack }: ChatbotDetailsProps) => {
       <div className="p-4 bg-gray-50 rounded-lg shadow-sm">
           <h2 className="text-2xl font-semibold mb-3">Message Analysis</h2>
           {isLoadingMessages ? (
-            <MyLoader /> 
-          ) : (
+            <div className="flex justify-center items-center h-32">
+              <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+            </div>
+          ) : hasError ? (
+            <div className="text-center text-red-500">
+              An error occurred while fetching messages. Please try again later.
+            </div>
+          ) : messagesData && (messagesData.frequentlyAskedQuestions.length > 0 || Object.keys(messagesData.sentimentAnalysis).length > 0) ? (
             <MessagesList messagesData={messagesData} />
+          ) : (
+            <div className="text-center text-gray-500 py-8">
+              No messages yet. Start interacting with your chatbot to see analysis here.
+            </div>
           )}
       </div>
 
@@ -139,11 +156,13 @@ const ChatbotDetails = ({ chatbot, onBack }: ChatbotDetailsProps) => {
         </Button>
       </div>
 
-      <ExportChatbotModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        embedCode={embedCode}
-      />
+      {isModalOpen && (
+        <ExportChatbotModal
+          onClose={() => setIsModalOpen(false)}
+          embedCode={embedCode}
+          chatbotId={chatbot.id}
+        />
+      )}
     </div>
   );
 };

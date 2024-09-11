@@ -5,13 +5,20 @@ import Image from 'next/image'
 import { ArrowRight } from 'lucide-react'
 import { buttonVariants } from '@/components/ui/button'
 import Link from 'next/link'
-import { RegisterLink } from '@kinde-oss/kinde-auth-nextjs/server'
 
 interface AnimatedHeroProps {
-  isLoggedIn: boolean
+  isLoggedIn: boolean;
+  primaryActionText: string;
+  primaryActionHref: string;
+  onPrimaryActionClick?: () => void;
 }
 
-const AnimatedHero: React.FC<AnimatedHeroProps> = ({ isLoggedIn }) => {
+const AnimatedHero: React.FC<AnimatedHeroProps> = ({ 
+  isLoggedIn, 
+  primaryActionText, 
+  primaryActionHref,
+  onPrimaryActionClick 
+}) => {
   return (
     <>
       <motion.div
@@ -47,15 +54,13 @@ const AnimatedHero: React.FC<AnimatedHeroProps> = ({ isLoggedIn }) => {
         transition={{ duration: 0.5, delay: 0.3 }}
         className="mt-8 flex flex-col sm:flex-row gap-4"
       >
-        {!isLoggedIn ? (
-          <RegisterLink className={buttonVariants({ size: "lg" })}>
-            Get Started <ArrowRight className="ml-2 h-5 w-5" />
-          </RegisterLink>
-        ) : (
-          <Link className={buttonVariants({ size: "lg" })} href="/chatbot-dashboard">
-            Dashboard <ArrowRight className="ml-2 h-5 w-5" />
-          </Link>
-        )}
+        <Link 
+          href={primaryActionHref}
+          className={buttonVariants({ size: "lg" })}
+          onClick={onPrimaryActionClick}
+        >
+          {primaryActionText} <ArrowRight className="ml-2 h-5 w-5" />
+        </Link>
         <Link href="#features" className={buttonVariants({ variant: "outline", size: "lg" })}>
           Learn More
         </Link>
