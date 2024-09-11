@@ -47,6 +47,7 @@ const Messages = ({ chatbotId, theme, welcomeMessage}: MessagesProps) => {
   const messages = data?.pages.flatMap((page) => page.messages)
 
   console.log(messages)
+  //@ts-ignore
   const loadingMessage = {
     createAt: new Date().toISOString(),
     id: 'loading-message',
