@@ -35,6 +35,7 @@ const StandaloneChatbot: React.FC<StandaloneChatbotProps> = ({ chatbotId }) => {
     if (config?.theme) {
       const themeConfig = config.theme as Prisma.JsonObject;
       setTheme(themeConfig?.theme as typeof defaultTheme || defaultTheme);
+      //@ts-ignore
       setOtherProps(themeConfig as any);
     }
   }, [config]);
