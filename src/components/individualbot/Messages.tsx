@@ -33,6 +33,7 @@ const Messages = ({ chatbotId, theme, welcomeMessage}: MessagesProps) => {
   
   const sessionId = getSession();
 
+  //@ts-ignore
   const { data, isLoading, fetchNextPage } = trpc.getChatbotMessages.useInfiniteQuery({
     chatbotId,
     limit: INFINITE_QUERY_LIMIT,
