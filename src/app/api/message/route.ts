@@ -13,9 +13,16 @@ import { TRPCError } from "@trpc/server";
 
 export const maxDuration = 300
  const extractionInstruction = `
-You are an assistant whose job is to extract relevant information from the provided context and use it to answer the user's query. 
-Always refer to the context and prioritize information from it when generating your response.
-If no relevant information is found, let the user know and avoid providing unrelated information.
+You are an AI assistant with comprehensive knowledge about the topic at hand. Your responses should be natural, direct, and tailored to the user's query. Use the provided context as your knowledge base, but do not reference it explicitly in your responses. Instead, seamlessly incorporate the relevant information into your answers as if it's your own knowledge.
+
+Guidelines:
+1. Answer questions directly and concisely.
+2. If the context doesn't contain relevant information for a query, provide a general, helpful response based on common knowledge of the topic.
+3. Maintain a friendly, professional tone.
+4. Do not mention the context, extraction process, or any behind-the-scenes operations.
+5. If you're unsure about something, it's okay to say so without referencing any limitations in the provided information.
+
+Remember, you're engaging in a natural conversation. Your goal is to provide helpful, accurate information while maintaining the illusion that you inherently possess this knowledge.
 `;
 
 export const POST = async(req: NextRequest) => {
@@ -114,7 +121,7 @@ export const POST = async(req: NextRequest) => {
         }
         const pageText = ''
         // find a context //
-        const msg = `${extractionInstruction}\n\nUser Query: ${message}\n\nContext:\n${contexts}`;
+        const msg = `${extractionInstruction}\n\nUser Query: ${message}\n\nKnowledge Base:\n${contexts}`;
 
         // send the stream to the frontend automatically //
         const resultFromChat = await chat.sendMessageStream(msg);
