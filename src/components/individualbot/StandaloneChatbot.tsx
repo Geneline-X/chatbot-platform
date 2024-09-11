@@ -90,7 +90,7 @@ const StandaloneChatbot: React.FC<StandaloneChatbotProps> = ({ chatbotId }) => {
             <Messages
               chatbotId={chatbotId}
               theme={theme}
-              welcomeMessage={otherProps.widget.welcomeMessage || "Welcome"}
+              welcomeMessage={otherProps?.widget?.welcomeMessage || "Welcome"}
             />
           </div>
           <ChatInput theme={theme} />

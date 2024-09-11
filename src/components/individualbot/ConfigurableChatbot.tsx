@@ -92,7 +92,7 @@ const ConfigurableChatbot: React.FC<ConfigurableChatbotProps> = ({ chatbotId }) 
             <Messages 
               chatbotId={chatbotId} 
               theme={theme} 
-              welcomeMessage={otherProps.widget.welcomeMessage || ""}
+              welcomeMessage={otherProps?.widget?.welcomeMessage || ""}
             />
           </div>
           <ChatInput theme={theme} />
