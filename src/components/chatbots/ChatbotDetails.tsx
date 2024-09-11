@@ -10,8 +10,9 @@ import { Button, buttonVariants } from "../ui/button";
 import { toast } from "../ui/use-toast";
 import Link from "next/link";
 import ExportChatbotModal from "./ExportChatbotModal";
-import { Loader2 } from "lucide-react";
+import { Loader2, Info, Settings, Brain } from "lucide-react";
 import { MyLoader } from "../MyLoader";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
 
 const ChatbotDetails = ({ chatbot, onBack }: ChatbotDetailsProps) => {
   const router = useRouter();
@@ -61,10 +62,11 @@ const ChatbotDetails = ({ chatbot, onBack }: ChatbotDetailsProps) => {
 
     fetchMessagesData();
   }, [chatbot.id]);
+
   const handleCustomizeClick = () => {
     setCurrentChatbot(chatbot);
     toast({
-      title: `Chatbot "${currentChatbot?.name}" selected for customization`,
+      title: `Customizing "${chatbot.name}"`,
       description: "Redirecting to the design page...",
     });
     router.push("/chatbot-dashboard/design");
@@ -73,7 +75,7 @@ const ChatbotDetails = ({ chatbot, onBack }: ChatbotDetailsProps) => {
   const handleTrainClick = () => {
     setCurrentChatbot(chatbot);
     toast({
-      title: `Chatbot "${currentChatbot?.name}" selected for training`,
+      title: `Training "${chatbot.name}"`,
       description: "Redirecting to the training page...",
     });
     router.push("/chatbot-dashboard/train");
@@ -100,59 +102,89 @@ const ChatbotDetails = ({ chatbot, onBack }: ChatbotDetailsProps) => {
     }
   };
 
+  const truncateInstruction = (instruction: string, maxLength: number = 100) => {
+    if (instruction.length <= maxLength) return instruction;
+    return instruction.substring(0, maxLength) + "...";
+  };
+
   return (
-    <div className="p-6 bg-white rounded-lg shadow-md">
-      <div className="flex justify-between items-center mb-4">
-        <Button variant="ghost" onClick={onBack}>
-          ← Back to Chatbots List
-        </Button>
-        <div className="flex items-center space-x-4">
-          <Button onClick={handleChatbotExport}>
-            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Export"}
+    <div className="bg-white rounded-lg shadow-md overflow-hidden">
+      <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-6">
+        <div className="flex justify-between items-center mb-4">
+          <Button variant="ghost" onClick={onBack} className="text-white hover:bg-white/20">
+            ← Back to Chatbots
           </Button>
-          <Link href={`/chatbot-dashboard/chatbots/${chatbot.id}`}>
-            <Button variant="secondary">Test Your Bot</Button>
-          </Link>
+          <div className="flex items-center space-x-4">
+            <Button onClick={handleChatbotExport} className="bg-white text-blue-600 hover:bg-blue-50">
+              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Export"}
+            </Button>
+            <Link href={`/chatbot-dashboard/chatbots/${chatbot.id}`}>
+              <Button variant="secondary" className="bg-white/20 hover:bg-white/30">Test Your Bot</Button>
+            </Link>
+          </div>
         </div>
-      </div>
-
-      <div className="mb-6">
         <h1 className="text-3xl font-bold mb-2">{chatbot.name}</h1>
-        <p className="text-gray-600">{chatbot.systemInstruction}</p>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <p className="text-white/80 cursor-pointer">
+                {truncateInstruction(chatbot.systemInstruction)}
+              </p>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p className="max-w-md">{chatbot.systemInstruction}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
 
-      <div className="space-y-6">
-      <div className="p-4 bg-gray-50 rounded-lg shadow-sm">
-          <h2 className="text-2xl font-semibold mb-3">Message Analysis</h2>
-          {isLoadingMessages ? (
-            <div className="flex justify-center items-center h-32">
-              <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
-            </div>
-          ) : hasError ? (
-            <div className="text-center text-red-500">
-              An error occurred while fetching messages. Please try again later.
-            </div>
-          ) : messagesData && (messagesData.frequentlyAskedQuestions.length > 0 || Object.keys(messagesData.sentimentAnalysis).length > 0) ? (
-            <MessagesList messagesData={messagesData} />
-          ) : (
-            <div className="text-center text-gray-500 py-8">
-              No messages yet. Start interacting with your chatbot to see analysis here.
-            </div>
-          )}
-      </div>
+      <div className="p-6 space-y-6">
+        <div className="bg-gray-50 rounded-lg shadow-sm overflow-hidden">
+          <div className="bg-gray-100 p-4 flex justify-between items-center">
+            <h2 className="text-xl font-semibold flex items-center">
+              <Info className="mr-2 h-5 w-5 text-blue-500" />
+              Message Analysis
+            </h2>
+            {!isLoadingMessages && !hasError && messagesData && (
+              <span className="text-sm text-gray-500">
+                {messagesData.frequentlyAskedQuestions.length} FAQs | {Object.keys(messagesData.sentimentAnalysis).length} Sentiments
+              </span>
+            )}
+          </div>
+          <div className="p-4">
+            {isLoadingMessages ? (
+              <div className="flex justify-center items-center h-32">
+                <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+              </div>
+            ) :  messagesData && (messagesData.frequentlyAskedQuestions.length > 0 || Object.keys(messagesData.sentimentAnalysis).length > 0) ? (
+              <MessagesList messagesData={messagesData} />
+            ) : (
+              <div className="text-center text-gray-500 py-8">
+                No messages yet. Start interacting with your chatbot to see analysis here.
+              </div>
+            )}
+          </div>
+        </div>
 
-        <div className="p-4 bg-gray-50 rounded-lg shadow-sm">
-          <h2 className="text-2xl font-semibold mb-2">Custom Configurations</h2>
-          <Configurations configurations={chatbot.customConfigurations} />
+        <div className="bg-gray-50 rounded-lg shadow-sm overflow-hidden">
+          <div className="bg-gray-100 p-4">
+            <h2 className="text-xl font-semibold flex items-center">
+              <Settings className="mr-2 h-5 w-5 text-blue-500" />
+              Custom Configurations
+            </h2>
+          </div>
+          <div className="p-4">
+            <Configurations configurations={chatbot?.customConfigurations ?chatbot?.customConfigurations : <>No Configurations Set</>} />
+          </div>
         </div>
       </div>
 
-      <div className="flex justify-end space-x-4 mt-6">
-        <Button variant="outline" onClick={handleCustomizeClick}>
-          Customize Design
+      <div className="bg-gray-50 p-6 flex justify-end space-x-4">
+        <Button variant="outline" onClick={handleCustomizeClick} className="flex items-center">
+          <Settings className="mr-2 h-4 w-4" /> Customize Design
         </Button>
-        <Button variant="outline" onClick={handleTrainClick}>
-          Train Chatbot
+        <Button variant="outline" onClick={handleTrainClick} className="flex items-center">
+          <Brain className="mr-2 h-4 w-4" /> Train Chatbot
         </Button>
       </div>
 
