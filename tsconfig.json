@@ -5,7 +5,7 @@
     "skipLibCheck": true,
     "noImplicitAny": false,
     "exactOptionalPropertyTypes": false,
-    "strict": false,
+    "strict": true,
     "noEmit": true,
     "esModuleInterop": true,
     "module": "esnext",

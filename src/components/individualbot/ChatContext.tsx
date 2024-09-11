@@ -185,6 +185,7 @@ export const ChatContextProvider = ({ chatbotId, children }: Props) => {
             setMessage(backupMessage.current);
             utils.getChatbotMessages.setData(
                 { chatbotId, email, sessionId },
+                //@ts-ignore
                 { messages: context?.previousMessages ?? [] }
             );
         },

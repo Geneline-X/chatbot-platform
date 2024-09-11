@@ -15,7 +15,7 @@ interface Props {
 const ChatbotsList = ({ onSelect }: Props) => {
   const { currentBusiness } = useBusiness()
   const { setCurrentChatbot } = useChatbot()
-  const [chatbots, setChatbots] = useState<ChatbotProps[]>([])
+  const [chatbots, setChatbots] = useState<any[]>([])
   const [currentDeletingChatbot, setCurrentDeletingChatbot] = useState<string | null>(null)
 
   //@ts-ignore
@@ -30,7 +30,7 @@ const ChatbotsList = ({ onSelect }: Props) => {
     onSuccess: () => {
       getAllChatbots({businessId: currentBusiness?.id!})
     },
-    onMutate: ({ id }) => {
+    onMutate: ({ id }:any) => {
       setCurrentDeletingChatbot(id)
     },
     onSettled: () => {
