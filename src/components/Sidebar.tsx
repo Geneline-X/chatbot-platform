@@ -13,9 +13,6 @@ const Sidebar = () => {
   
   return (
     <div className="w-64 bg-white shadow-sm h-full flex flex-col">
-      <div className="p-6 border-b border-gray-200">
-        <h1 className="text-2xl font-bold text-gray-800">GeniStudio</h1>
-      </div>
       <nav className="flex-1 overflow-y-auto py-4">
         <SidebarLink href="/chatbot-dashboard" icon={<Home />} label="Home" active={pathname === '/chatbot-dashboard'} />
         <SidebarLink href="/chatbot-dashboard/users" icon={<User />} label="Users" active={pathname === '/chatbot-dashboard/users'} />
