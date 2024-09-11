@@ -48,10 +48,11 @@
     "@vercel/analytics": "^1.1.2",
     "@vercel/speed-insights": "^1.0.8",
     "ai": "^2.2.30",
-    "axios": "^1.6.8",
+    "axios": "^1.7.7",
     "bignumber.js": "^9.1.2",
     "bufferutil": "^4.0.8",
     "bull": "^4.12.0",
+    "chatbot-platform": "file:",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "codegpt-nextjs": "file:../../.vscode/extensions/danielsanmedium.dscodegpt-3.1.1/standalone",
@@ -130,12 +131,12 @@
     "@types/react-syntax-highlighter": "^15.5.11",
     "@types/sse": "^0.0.0",
     "@types/ws": "^8.5.10",
-    "autoprefixer": "^10",
-    "eslint": "^8",
+    "autoprefixer": "^10.4.18",
+    "eslint": "^8.57.0",
     "eslint-config-next": "14.2.4",
     "postcss": "^8",
     "prisma": "^5.8.1",
     "tailwindcss": "^3.4.1",
-    "typescript": "^5"
+    "typescript": "^5.3.3"
   }
 }
