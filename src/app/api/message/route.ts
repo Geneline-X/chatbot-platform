@@ -26,7 +26,7 @@ export const POST = async(req: NextRequest) => {
           console.log("this is the body: ", body)
         const { chatbotId ,message, email, sessionId } = SendMessageValidators.parse(body)
 
-        let chatbotUser = null;
+        let chatbotUser:any = null;
         if(!email){
           throw new TRPCError({message: "email not found", code: "NOT_FOUND"})
             
@@ -41,7 +41,7 @@ export const POST = async(req: NextRequest) => {
 
         const prevMessages = email ? await db.message.findMany({
             where: {
-              chatbotUserId: chatbotUser?.id,
+              chatbotUserId: chatbotUser?.id!,
                 chatbotId,
                 
             },
