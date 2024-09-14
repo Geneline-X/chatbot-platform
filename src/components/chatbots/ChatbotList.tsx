@@ -52,6 +52,12 @@ const ChatbotsList = ({ onSelect }: Props) => {
   const handleDeleteChatbot = (id: string) => {
     deleteChatbot({ id })
   }
+  const getTotalMessageCount = (chatbot: any) => {
+    console.log(chatbot)
+    return chatbot.chatbotUsers.reduce((total: number, user: any) => {
+      return total + (user.messages?.length || 0)
+    }, 0)
+  }
 
   if (isLoading) {
     return <div className="flex justify-center items-center h-64"><Loader2 className="h-8 w-8 animate-spin" /></div>
@@ -87,7 +93,7 @@ const ChatbotsList = ({ onSelect }: Props) => {
               </div>
               <div className="flex items-center text-sm text-gray-500">
                 <MessageCircle className="h-4 w-4 mr-2" />
-                {  0} messages
+                {getTotalMessageCount(chatbot) || 0} messages
               </div>
             </div>
             <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">

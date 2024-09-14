@@ -1,10 +1,9 @@
 "use client"
 
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { motion } from 'framer-motion'
 import { HexColorPicker } from "react-colorful"
-import { Slider } from "@/components/ui/slider"
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
 import { Button } from '@/components/ui/button'
@@ -17,49 +16,58 @@ import useChatbotConfig from '@/lib/hooks/useChatbotConfig'
 import ChatbotPreview from './ChatbotPreview'
 import ProgressTracker from './ProgressTracker'
 import { useUploadThing } from '@/lib/uploadthing'
-import { Checkbox } from "@/components/ui/checkbox"
 
+const defaultValues = {
+  logo: '',
+  theme: {
+    theme: {
+      primaryColor: '#000000',
+      secondaryColor: '#FFFFFF',
+      chatBubbleUserColor: '#E0E0E0',
+      chatBubbleBotColor: '#007BFF',
+      backgroundColor: '#F0F0F0',
+      font: 'Arial',
+      fontSize: 14
+    },
+    widget: {
+      position: 'bottom-right',
+      size: 'medium',
+      welcomeMessage: 'Hi! How can I help you today?',
+      botAvatar: ''
+    }
+  }
+}
 
 const DesignMain = () => {
-  const { control, handleSubmit, watch, setValue } = useForm({
-    defaultValues: {
-      logo: '',
-      theme: {
-        primaryColor: '#000000',
-        secondaryColor: '#FFFFFF',
-        chatBubbleUserColor: '#E0E0E0',
-        chatBubbleBotColor: '#007BFF',
-        backgroundColor: '#F0F0F0',
-        font: 'Arial',
-        fontSize: 14
-      },
-      widget: {
-        position: 'bottom-right',
-        size: 'medium',
-        welcomeMessage: 'Hi! How can I help you today?',
-        botAvatar: ''
-      },
-      behavior: {
-        showTypingIndicator: true,
-        messageDelay: 1000,
-        autoRespondingHours: '9am-5pm'
-      },
-      advanced: {
-        customCSS: '',
-        chatHistory: 'enabled',
-        gdprCompliance: 'enabled'
-      }
-    }
+  const { control, handleSubmit, watch, setValue, reset } = useForm({
+    defaultValues
   })
 
   const watchedFormData = watch()
   const router = useRouter()
   const createBrand = trpc.createBrand.useMutation()
   const { currentChatbot } = useChatbot()
-  const { config } = useChatbotConfig(currentChatbot?.id ?? undefined)
+  const { config, isLoading: isConfigLoading } = useChatbotConfig(currentChatbot?.id ?? undefined)
   const { startUpload, isUploading } = useUploadThing('freePlanUploader')
 
-  const onSubmit = async (data:any) => {
+  console.log('Loaded config:', config)
+  useEffect(() => {
+    if (!isConfigLoading && config) {
+      console.log('Loaded config:', config)
+      reset({
+        logo: config.logo || defaultValues.logo,
+        theme: {
+          //@ts-ignore
+          theme: { ...defaultValues.theme.theme, ...config.theme?.theme },
+          //@ts-ignore
+          widget: { ...defaultValues.theme.widget, ...config.theme?.widget }
+        }
+      })
+    }
+    //@ts-ignore
+  }, [config, isConfigLoading, reset])
+
+  const onSubmit = async (data: any) => {
     if (!currentChatbot) {
       toast({
         title: "Please select a chatbot to customize",
@@ -73,8 +81,11 @@ const DesignMain = () => {
       chatbotId: currentChatbot.id,
       name: currentChatbot.name,
       brandId: config?.id,
-      ...data
+      logo: data.logo,
+      theme: data.theme // This now includes both theme and widget
     }
+
+    console.log('Submitting data:', input)
 
     createBrand.mutate(input, {
       onSuccess: () => {
@@ -113,6 +124,9 @@ const DesignMain = () => {
           <div>
             <h3 className="text-lg font-semibold mb-2">Logo</h3>
             <Input type="file" onChange={handleLogoUpload} accept="image/*" />
+            {watchedFormData.logo && (
+              <img src={watchedFormData.logo} alt="Logo preview" className="mt-2 max-w-xs" />
+            )}
           </div>
 
           <div>
@@ -120,18 +134,24 @@ const DesignMain = () => {
             {['primaryColor', 'secondaryColor', 'chatBubbleUserColor', 'chatBubbleBotColor', 'backgroundColor'].map((color) => (
               <Controller
                 key={color}
-                name={`theme.${color}` as any}
+                name={`theme.theme.${color}` as any}
                 control={control}
                 render={({ field }) => (
                   <div className="mb-4">
                     <label className="block text-sm font-medium mb-1">{color}</label>
-                    <HexColorPicker color={field?.value as string} onChange={field.onChange} />
+                    <HexColorPicker color={field.value} onChange={field.onChange} />
+                    <Input 
+                      type="text" 
+                      value={field.value} 
+                      onChange={(e) => field.onChange(e.target.value)}
+                      className="mt-2"
+                    />
                   </div>
                 )}
               />
             ))}
             <Controller
-              name="theme.font"
+              name="theme.theme.font"
               control={control}
               render={({ field }) => (
                 <div className="mb-4">
@@ -149,28 +169,12 @@ const DesignMain = () => {
                 </div>
               )}
             />
-            <Controller
-              name="theme.fontSize"
-              control={control}
-              render={({ field }) => (
-                <div className="mb-4">
-                  <label className="block text-sm font-medium mb-1">Font Size</label>
-                  <Slider
-                    min={10}
-                    max={24}
-                    step={1}
-                    value={[field.value]}
-                    onValueChange={(value) => field.onChange(value[0])}
-                  />
-                </div>
-              )}
-            />
           </div>
 
           <div>
             <h3 className="text-lg font-semibold mb-2">Widget</h3>
             <Controller
-              name="widget.position"
+              name="theme.widget.position"
               control={control}
               render={({ field }) => (
                 <div className="mb-4">
@@ -189,7 +193,7 @@ const DesignMain = () => {
               )}
             />
             <Controller
-              name="widget.size"
+              name="theme.widget.size"
               control={control}
               render={({ field }) => (
                 <div className="mb-4">
@@ -208,110 +212,12 @@ const DesignMain = () => {
               )}
             />
             <Controller
-              name="widget.welcomeMessage"
+              name="theme.widget.welcomeMessage"
               control={control}
               render={({ field }) => (
                 <div className="mb-4">
                   <label htmlFor="welcomeMessage" className="block text-sm font-medium mb-1">Welcome Message</label>
                   <Input {...field} />
-                </div>
-              )}
-            />
-          </div>
-
-          <div>
-            <h3 className="text-lg font-semibold mb-2">Behavior</h3>
-            <Controller
-              name="behavior.showTypingIndicator"
-              control={control}
-              render={({ field }) => (
-                <div className="flex items-center mb-4">
-                  <Checkbox
-                    id="showTypingIndicator"
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                  <label htmlFor="showTypingIndicator" className="ml-2">Show Typing Indicator</label>
-                </div>
-              )}
-            />
-            <Controller
-              name="behavior.messageDelay"
-              control={control}
-              render={({ field }) => (
-                <div className="mb-4">
-                  <label className="block text-sm font-medium mb-1">Message Delay (ms)</label>
-                  <Slider
-                    min={0}
-                    max={5000}
-                    step={100}
-                    value={[field.value]}
-                    onValueChange={(value) => field.onChange(value[0])}
-                  />
-                </div>
-              )}
-            />
-            <Controller
-              name="behavior.autoRespondingHours"
-              control={control}
-              render={({ field }) => (
-                <div className="mb-4">
-                  <label htmlFor="autoRespondingHours" className="block text-sm font-medium mb-1">Auto-responding Hours</label>
-                  <Input {...field} />
-                </div>
-              )}
-            />
-          </div>
-
-          <div>
-            <h3 className="text-lg font-semibold mb-2">Advanced</h3>
-            <Controller
-              name="advanced.customCSS"
-              control={control}
-              render={({ field }) => (
-                <div className="mb-4">
-                  <label htmlFor="customCSS" className="block text-sm font-medium mb-1">Custom CSS</label>
-                  <textarea
-                    className="w-full h-32 p-2 border rounded"
-                    placeholder="Custom CSS"
-                    {...field}
-                  />
-                </div>
-              )}
-            />
-            <Controller
-              name="advanced.chatHistory"
-              control={control}
-              render={({ field }) => (
-                <div className="mb-4">
-                  <label htmlFor="chatHistory" className="block text-sm font-medium mb-1">Chat History</label>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="enabled">Enabled</SelectItem>
-                      <SelectItem value="disabled">Disabled</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
-            />
-            <Controller
-              name="advanced.gdprCompliance"
-              control={control}
-              render={({ field }) => (
-                <div className="mb-4">
-                  <label htmlFor="gdprCompliance" className="block text-sm font-medium mb-1">GDPR Compliance</label>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="enabled">Enabled</SelectItem>
-                      <SelectItem value="disabled">Disabled</SelectItem>
-                    </SelectContent>
-                  </Select>
                 </div>
               )}
             />

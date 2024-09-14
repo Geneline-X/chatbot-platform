@@ -36,14 +36,6 @@ const Navbar = async () => {
                 <div className='flex items-center space-x-4'>
                     {!user ? (
                         <>
-                            <Link href="https://geni-studio.vercel.app/docs" 
-                               className={buttonVariants({ 
-                                variant: "ghost", 
-                                size: "sm", 
-                                className: 'text-gray-700 hover:text-blue-600 hover:bg-blue-50'
-                                })}>
-                                Docs
-                            </Link>
                             <LoginLink className={buttonVariants({
                                 variant: "ghost",
                                 size: "sm",
@@ -67,14 +59,6 @@ const Navbar = async () => {
                                 className: 'text-gray-700 hover:text-blue-600 hover:bg-blue-50'
                             })}>
                                 Dashboard
-                            </Link>
-                            <Link href="https://geni-studio.vercel.app/docs" 
-                                className={buttonVariants({ 
-                                    variant: "ghost", 
-                                    size: "sm", 
-                                    className: 'text-gray-700 hover:text-blue-600 hover:bg-blue-50'
-                                })}>
-                                Docs
                             </Link>
                             <UserAccountNav 
                                 name={!user.given_name || !user.family_name ? "Your Account" : `${user.given_name} ${user.family_name}`}
