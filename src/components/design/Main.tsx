@@ -7,7 +7,7 @@ import { HexColorPicker } from "react-colorful"
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
 import { Button } from '@/components/ui/button'
-import { Loader2 } from 'lucide-react'
+import { ArrowLeft, Loader2 } from 'lucide-react'
 import { trpc } from '@/app/_trpc/client'
 import { useChatbot } from '../business/BusinessContext'
 import { toast } from '../ui/use-toast'
@@ -110,128 +110,153 @@ const DesignMain = () => {
     }
   }
 
+  const handleBack = () => {
+    router.push('/chatbot-dashboard/chatbots')
+  }
+
   return (
     <motion.div 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="p-6 bg-white shadow-lg rounded-lg"
+      className="max-w-7xl mx-auto p-6 bg-white shadow-lg rounded-lg"
     >
-      <h2 className="text-2xl font-bold mb-6">Design Your Chatbot</h2>
+      <div className="flex items-center justify-between mb-6">
+        <Button
+          onClick={handleBack}
+          variant="ghost"
+          className="flex items-center text-gray-600 hover:text-gray-900"
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Back to Chatbots
+        </Button>
+        <h2 className="text-2xl font-bold text-center flex-grow">Design Your Chatbot</h2>
+        <div className="w-[100px]"></div> {/* This empty div balances the layout */}
+      </div>
+      
       <ProgressTracker currentStep={2} totalSteps={4} />
-      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col md:flex-row gap-8">
-        <div className="w-full md:w-1/2 space-y-6">
-          <div>
-            <h3 className="text-lg font-semibold mb-2">Logo</h3>
-            <Input type="file" onChange={handleLogoUpload} accept="image/*" />
-            {watchedFormData.logo && (
-              <img src={watchedFormData.logo} alt="Logo preview" className="mt-2 max-w-xs" />
-            )}
-          </div>
+      
+      <div className="flex flex-col lg:flex-row gap-8">
+        <div className="w-full lg:w-1/2 space-y-8">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+            <div className="bg-gray-50 p-6 rounded-lg shadow-sm">
+              <h3 className="text-lg font-semibold mb-4">Logo</h3>
+              <Input type="file" onChange={handleLogoUpload} accept="image/*" />
+              {watchedFormData.logo && (
+                <img src={watchedFormData.logo} alt="Logo preview" className="mt-4 max-w-xs rounded-lg shadow" />
+              )}
+            </div>
 
-          <div>
-            <h3 className="text-lg font-semibold mb-2">Theme</h3>
-            {['primaryColor', 'secondaryColor', 'chatBubbleUserColor', 'chatBubbleBotColor', 'backgroundColor'].map((color) => (
+            <div className="bg-gray-50 p-6 rounded-lg shadow-sm">
+              <h3 className="text-lg font-semibold mb-4">Theme</h3>
+              {['primaryColor', 'secondaryColor', 'chatBubbleUserColor', 'chatBubbleBotColor', 'backgroundColor'].map((color) => (
+                <Controller
+                  key={color}
+                  name={`theme.theme.${color}` as any}
+                  control={control}
+                  render={({ field }) => (
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium mb-2">{color}</label>
+                      <div className="flex items-center space-x-4">
+                        <HexColorPicker color={field.value} onChange={field.onChange} />
+                        <Input 
+                          type="text" 
+                          value={field.value} 
+                          onChange={(e) => field.onChange(e.target.value)}
+                          className="w-28"
+                        />
+                      </div>
+                    </div>
+                  )}
+                />
+              ))}
               <Controller
-                key={color}
-                name={`theme.theme.${color}` as any}
+                name="theme.theme.font"
                 control={control}
                 render={({ field }) => (
                   <div className="mb-4">
-                    <label className="block text-sm font-medium mb-1">{color}</label>
-                    <HexColorPicker color={field.value} onChange={field.onChange} />
-                    <Input 
-                      type="text" 
-                      value={field.value} 
-                      onChange={(e) => field.onChange(e.target.value)}
-                      className="mt-2"
-                    />
+                    <label htmlFor="font" className="block text-sm font-medium mb-2">Font</label>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {['Arial', 'Helvetica', 'Times New Roman', 'Courier', 'Verdana'].map((font) => (
+                          <SelectItem key={font} value={font}>{font}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                 )}
               />
-            ))}
-            <Controller
-              name="theme.theme.font"
-              control={control}
-              render={({ field }) => (
-                <div className="mb-4">
-                  <label htmlFor="font" className="block text-sm font-medium mb-1">Font</label>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {['Arial', 'Helvetica', 'Times New Roman', 'Courier', 'Verdana'].map((font) => (
-                        <SelectItem key={font} value={font}>{font}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
-            />
-          </div>
+            </div>
 
-          <div>
-            <h3 className="text-lg font-semibold mb-2">Widget</h3>
-            <Controller
-              name="theme.widget.position"
-              control={control}
-              render={({ field }) => (
-                <div className="mb-4">
-                  <label htmlFor="position" className="block text-sm font-medium mb-1">Position</label>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {['bottom-right', 'bottom-left', 'top-right', 'top-left'].map((position) => (
-                        <SelectItem key={position} value={position}>{position}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
-            />
-            <Controller
-              name="theme.widget.size"
-              control={control}
-              render={({ field }) => (
-                <div className="mb-4">
-                  <label htmlFor="size" className="block text-sm font-medium mb-1">Size</label>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {['small', 'medium', 'large'].map((size) => (
-                        <SelectItem key={size} value={size}>{size}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
-            />
-            <Controller
-              name="theme.widget.welcomeMessage"
-              control={control}
-              render={({ field }) => (
-                <div className="mb-4">
-                  <label htmlFor="welcomeMessage" className="block text-sm font-medium mb-1">Welcome Message</label>
-                  <Input {...field} />
-                </div>
-              )}
-            />
-          </div>
+            <div className="bg-gray-50 p-6 rounded-lg shadow-sm">
+              <h3 className="text-lg font-semibold mb-4">Widget</h3>
+              <Controller
+                name="theme.widget.position"
+                control={control}
+                render={({ field }) => (
+                  <div className="mb-4">
+                    <label htmlFor="position" className="block text-sm font-medium mb-2">Position</label>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {['bottom-right', 'bottom-left', 'top-right', 'top-left'].map((position) => (
+                          <SelectItem key={position} value={position}>{position}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+              />
+              <Controller
+                name="theme.widget.size"
+                control={control}
+                render={({ field }) => (
+                  <div className="mb-4">
+                    <label htmlFor="size" className="block text-sm font-medium mb-2">Size</label>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {['small', 'medium', 'large'].map((size) => (
+                          <SelectItem key={size} value={size}>{size}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+              />
+              <Controller
+                name="theme.widget.welcomeMessage"
+                control={control}
+                render={({ field }) => (
+                  <div className="mb-4">
+                    <label htmlFor="welcomeMessage" className="block text-sm font-medium mb-2">Welcome Message</label>
+                    <Input {...field} />
+                  </div>
+                )}
+              />
+            </div>
 
-          <Button type="submit" disabled={createBrand.isLoading || isUploading}>
-            {createBrand.isLoading ? <Loader2 className='h-4 w-4 animate-spin'/> : 'Save & Continue'}
-          </Button>
+            <Button type="submit" className="w-full" disabled={createBrand.isLoading || isUploading}>
+              {createBrand.isLoading ? <Loader2 className='h-4 w-4 animate-spin mr-2'/> : null}
+              Save & Continue
+            </Button>
+          </form>
         </div>
 
-        <div className="w-full md:w-1/2">
-          <ChatbotPreview formData={watchedFormData} />
+        <div className="w-full lg:w-1/2 sticky top-6">
+          <div className="bg-gray-50 p-6 rounded-lg shadow-sm">
+            <h3 className="text-lg font-semibold mb-4">Preview</h3>
+            <ChatbotPreview formData={watchedFormData} />
+          </div>
         </div>
-      </form>
+      </div>
     </motion.div>
   )
 }

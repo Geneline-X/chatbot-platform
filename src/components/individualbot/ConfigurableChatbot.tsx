@@ -8,6 +8,9 @@ import { Prisma } from '@prisma/client';
 import { ChatContextProvider } from './ChatContext';
 import Messages from './Messages';
 import { MyLoader } from '../MyLoader';
+import { useRouter } from 'next/navigation';
+import { Button } from '../ui/button';
+import { ArrowLeft } from 'lucide-react';
 
 interface ConfigurableChatbotProps {
   chatbotId: string;
@@ -24,6 +27,7 @@ const defaultTheme = {
 };
 
 const ConfigurableChatbot: React.FC<ConfigurableChatbotProps> = ({ chatbotId }) => {
+  const router = useRouter();
   const { config, isLoading: configLoading, error: configError } = useChatbotConfig(chatbotId);
   const [theme, setTheme] = useState(defaultTheme);
   const [otherProps, setOtherProps] = useState({
@@ -72,6 +76,10 @@ const ConfigurableChatbot: React.FC<ConfigurableChatbotProps> = ({ chatbotId }) 
     </div>
   );
   
+  const handleBack = () => {
+    router.push(`/chatbot-dashboard/chatbots`);
+  };
+
   if (configError) return (
     <div style={containerStyle} className='text-red-500'>
       Error loading chatbot configuration
@@ -80,6 +88,10 @@ const ConfigurableChatbot: React.FC<ConfigurableChatbotProps> = ({ chatbotId }) 
 
   return (
     <div style={containerStyle}>
+      <Button onClick={handleBack} variant="ghost" className="self-start mb-4">
+        <ArrowLeft className="mr-2 h-5 w-5" />
+        Back to Chatbot Details
+      </Button>
       <div style={chatContainerStyle}>
         <ChatContextProvider chatbotId={chatbotId}>
           <ChatHeader 

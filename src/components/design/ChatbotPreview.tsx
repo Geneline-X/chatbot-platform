@@ -14,7 +14,7 @@ const ChatbotPreview = ({ formData }:any) => {
   }
 
   return (
-    <div className="border rounded-lg overflow-hidden flex flex-col" style={{ height: '600px', width: '300px' }}>
+    <div className="border rounded-lg overflow-hidden flex flex-col" style={{ height: '600px', width: '350px' }}>
       {/* Chat Header */}
       <ChatHeader
         avatar={logo}
