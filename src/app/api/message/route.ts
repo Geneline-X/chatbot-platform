@@ -49,8 +49,7 @@ export const POST = async(req: NextRequest) => {
         const prevMessages = email ? await db.message.findMany({
             where: {
               chatbotUserId: chatbotUser?.id!,
-                chatbotId,
-                
+                chatbotId, 
             },
             orderBy:{
                 createAt: "asc"
@@ -154,9 +153,8 @@ export const POST = async(req: NextRequest) => {
             }
           }
         })
-
+        
        return  new StreamingTextResponse(responseStream);
-       
     } catch (error) {
       console.log(error)
     

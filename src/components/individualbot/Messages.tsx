@@ -33,7 +33,6 @@ const Messages = ({ chatbotId, theme, welcomeMessage}: MessagesProps) => {
   
   const sessionId = getSession();
 
-  //@ts-ignore
   const { data, isLoading, fetchNextPage } = trpc.getChatbotMessages.useInfiniteQuery({
     chatbotId,
     limit: INFINITE_QUERY_LIMIT,
@@ -46,8 +45,6 @@ const Messages = ({ chatbotId, theme, welcomeMessage}: MessagesProps) => {
 
   const messages = data?.pages.flatMap((page) => page.messages)
 
-  console.log(messages)
-  //@ts-ignore
   const loadingMessage = {
     createAt: new Date().toISOString(),
     id: 'loading-message',
@@ -87,17 +84,13 @@ const Messages = ({ chatbotId, theme, welcomeMessage}: MessagesProps) => {
     }
   }, [message, addMessage])
 
-  
-
   const handleEmailSubmit = (email: string) => {
     setEmail(email);
-    console.log(email)
     setShowEmailPrompt(false);
     clearMessages();
   };
 
   const handleSkip = () => {
-    console.log('clicked')
     setShowEmailPrompt(false);
   }
 
@@ -119,7 +112,6 @@ const Messages = ({ chatbotId, theme, welcomeMessage}: MessagesProps) => {
     actionRef.current = predefinedMessage
     setMessage(predefinedMessage)
   }, [setMessage])
-
 
   if (messages?.length === 0 && showEmailPrompt) {
     return (

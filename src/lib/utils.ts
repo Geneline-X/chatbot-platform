@@ -1,6 +1,7 @@
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
 import { Metadata } from "next"
+import { db } from "@/db"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -132,3 +133,40 @@ export const clearInMemoryMessages = (sessionId: string) => {
   inMemoryStore.delete(sessionId);
 };
 
+
+export async function enableWhatsAppForChatbot(chatbotId: string, phoneNumber: string) {
+  await db.chatbot.update({
+    where: { id: chatbotId },
+    data: { 
+      whatsappEnabled: true,
+      whatsappPhoneNumber: phoneNumber
+    }
+  });
+}
+
+export async function purchaseNumber(twilioAxios: any, phoneNumber: string) {
+  const response = await twilioAxios.post('/2010-04-01/Accounts/IncomingPhoneNumbers.json', {
+    PhoneNumber: phoneNumber,
+    SmsUrl: `${process.env.APP_URL}/api/twilio-webhook`,  // Webhook to handle incoming WhatsApp messages
+    SmsMethod: 'POST',
+  });
+  return response.data;
+}
+
+
+export async function initiateTwilioOAuth(businessId: string) {
+  const clientId = process.env.TWILIO_CLIENT_ID;  // Twilio Client ID
+  const redirectUri = `${process.env.APP_URL}/api/twilio-callback?businessId=${businessId}`;  // Your platform's callback URL
+  const scope = 'incoming-phone-numbers.write incoming-phone-numbers.read messages.write messages.read';  // Scopes for OAuth
+
+  // Correct Twilio OAuth URL
+  return `https://www.twilio.com/console/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${encodeURIComponent(scope)}`;
+}
+
+
+export async function fetchAvailableNumbers(twilioAxios: any) {
+  const response = await twilioAxios.get('/2010-04-01/Accounts/AvailablePhoneNumbers/US/Mobile.json', {
+    params: { SmsEnabled: true, MmsEnabled: true }
+  });
+  return response.data.available_phone_numbers;
+}

@@ -28,10 +28,11 @@ export const ChatContex = createContext<StreamResponseType>({
 
 interface Props {
     chatbotId: string,
-    children: ReactNode
+    children: ReactNode,
+    chatContainerRef: React.RefObject<HTMLDivElement>
 }
 
-export const ChatContextProvider = ({ chatbotId, children }: Props) => {
+export const ChatContextProvider = ({ chatbotId, children, chatContainerRef }: Props) => {
     const [message, setMessage] = useState<string>("")
     const [isLoading, setIsLoading] = useState<boolean>(false)
     const [email, setEmail] = useState<string>("")
@@ -62,7 +63,6 @@ export const ChatContextProvider = ({ chatbotId, children }: Props) => {
                     chatbotId,
                     message,
                     email,
-                    
                 }),
             });
             if (!response.ok) {
@@ -110,7 +110,13 @@ export const ChatContextProvider = ({ chatbotId, children }: Props) => {
                 }
             );
             
-    
+            // Scroll to bottom after optimistic update
+            setTimeout(() => {
+                if (chatContainerRef.current) {
+                    chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+                }
+            }, 0);
+
             setIsLoading(true);
     
             return { previousMessages: previousMessages?.pages.flatMap((page) => page.messages) ?? [] };
@@ -176,6 +182,11 @@ export const ChatContextProvider = ({ chatbotId, children }: Props) => {
                         return { ...old, pages: updatedPages };
                     }
                 );
+
+                // Scroll to bottom after each update
+                if (chatContainerRef.current) {
+                    chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+                }
             }
     
             setIsLoading(false);

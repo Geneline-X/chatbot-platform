@@ -6,7 +6,6 @@ import { Button } from '../ui/button';
 import { Send } from 'lucide-react';
 import { ChatContex } from './ChatContext';
 import { isValidEmail } from '@/lib/utils';
-// import { PaperPlaneIcon } from 'lucide-react';
 
 interface ChatInputProps {
   theme: {
@@ -17,7 +16,7 @@ interface ChatInputProps {
     backgroundColor: string;
     font: string;
     fontSize: string;
-    fontColor?: string; // Adding fontColor to the theme
+    fontColor?: string;
   };
 }
 
@@ -65,7 +64,6 @@ const ChatInput: React.FC<ChatInputProps> = ({ theme }) => {
         </Button>
       </div>
        ):null}
-      
       
       <div 
         style={{

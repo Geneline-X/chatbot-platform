@@ -13,9 +13,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useDropzone } from 'react-dropzone';
 interface FileUploadDropzoneProps {
   isSubscribed?: boolean;
+  onTrainingStatusChange: (isTraining: boolean) => void;
 }
 
-const FileUploadDropzone: React.FC<FileUploadDropzoneProps> = ({ isSubscribed }) => {
+const FileUploadDropzone: React.FC<FileUploadDropzoneProps> = ({ isSubscribed,onTrainingStatusChange }) => {
   const { currentChatbot } = useChatbot()
   const { currentBusiness } = useBusiness()
 
@@ -28,23 +29,32 @@ const FileUploadDropzone: React.FC<FileUploadDropzoneProps> = ({ isSubscribed })
 
   const { startUpload } = useUploadThing(isSubscribed ? 'proPlanUploader' : 'freePlanUploader', {
     onClientUploadComplete: async(res) => {
-      await Promise.all(res.map(async (file) => {
-        const { extension, name } = getFileType(file.name)
-        const endpoint = getEndpointByFileType(name)
-        await makeRequest({
-          endpoint,
-          file,
-          extension,
-          chatbotName: currentChatbot?.name,
-          userId: currentBusiness?.userId
-        });
-      }));
-      setIsUploading(false);
-      setUploadProgress(100);
-      toast({ title: 'Upload Successful!', description: 'Your files have been uploaded and processed.' });
+      onTrainingStatusChange(true);
+      try {
+        await Promise.all(res.map(async (file) => {
+          const { extension, name } = getFileType(file.name)
+          const endpoint = getEndpointByFileType(name)
+          await makeRequest({
+            endpoint,
+            file,
+            extension,
+            chatbotName: currentChatbot?.name,
+            userId: currentBusiness?.userId
+          });
+        }));
+        setIsUploading(false);
+        setUploadProgress(100);
+        toast({ title: 'Upload Successful!', description: 'Your files have been uploaded and processed.' });
+      } catch (error) {
+        console.error('Error processing uploaded files:', error);
+        toast({ title: 'Processing Error', description: 'An error occurred while processing the uploaded files.', variant: 'destructive' });
+      }finally {
+        onTrainingStatusChange(false);
+      }
     },
     onUploadError: (error) => {
       setIsUploading(false);
+      onTrainingStatusChange(false);
       toast({ title: 'Upload Failed', description: error.message, variant: 'destructive' });
     }
   });
@@ -53,15 +63,17 @@ const FileUploadDropzone: React.FC<FileUploadDropzoneProps> = ({ isSubscribed })
     setIsUploading(true);
     setUploadedFiles(acceptedFiles);
     setUploadProgress(0);
+    onTrainingStatusChange(true);
     try {
       startUpload(acceptedFiles);
       simulateProgress();
     } catch (error) {
       console.error('Error uploading files:', error);
       setIsUploading(false);
+      onTrainingStatusChange(false);
       toast({ title: 'Upload Failed', description: 'An error occurred during the upload.', variant: 'destructive' });
     }
-  }, [startUpload]);
+  }, [startUpload, onTrainingStatusChange]);
 
   const simulateProgress = () => {
     let progress = 0;

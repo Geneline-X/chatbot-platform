@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import ChatHeader from './ChatHeader';
 import ChatInput from './ChatInput';
 import useChatbotConfig from '@/lib/hooks/useChatbotConfig';
@@ -33,6 +33,7 @@ const ConfigurableChatbot: React.FC<ConfigurableChatbotProps> = ({ chatbotId }) 
   const [otherProps, setOtherProps] = useState({
     widget: {welcomeMessage: ''},
   });
+  const chatContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     //@ts-ignore
@@ -93,14 +94,14 @@ const ConfigurableChatbot: React.FC<ConfigurableChatbotProps> = ({ chatbotId }) 
         Back to Chatbot Details
       </Button>
       <div style={chatContainerStyle}>
-        <ChatContextProvider chatbotId={chatbotId}>
+        <ChatContextProvider chatbotId={chatbotId} chatContainerRef={chatContainerRef}>
           <ChatHeader 
             avatar={config?.logo} 
             theme={theme} 
             welcomeMessage={config?.name || 'Welcome'} 
             key={config?.id}
           />
-          <div style={{ flex: 1, overflowY: 'auto', padding: '16px' }}>
+          <div ref={chatContainerRef} style={{ flex: 1, overflowY: 'auto', padding: '16px' }}>
             <Messages 
               chatbotId={chatbotId} 
               theme={theme} 

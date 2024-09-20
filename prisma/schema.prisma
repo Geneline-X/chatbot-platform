@@ -25,29 +25,34 @@ model User {
 }
 
 model Business {
-  id          String    @id(map: "idx_28862_PRIMARY_business") @default(cuid()) @db.VarChar(191)
-  userId      String    @db.VarChar(191)
-  name        String    @db.VarChar(191)
-  description String?
-  industry String?
-  createAt    DateTime  @default(now()) @db.Timestamptz(6)
-  updatedAt   DateTime  @updatedAt @db.Timestamptz(6)
-  User        User      @relation(fields: [userId], references: [id])
-  chatbots    Chatbot[]
+  id                 String    @id(map: "idx_28862_PRIMARY_business") @default(cuid()) @db.VarChar(191)
+  userId             String    @db.VarChar(191)
+  name               String    @db.VarChar(191)
+  description        String?
+  industry           String?
+  createAt           DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt          DateTime  @updatedAt @db.Timestamptz(6)
+  twilioAccessToken  String?   @db.VarChar(191)
+  twilioRefreshToken String?   @db.VarChar(191)
+  twilioPhoneNumber  String?   @db.VarChar(191)
+  User               User      @relation(fields: [userId], references: [id])
+  chatbots           Chatbot[]
 }
 
 model Chatbot {
-  id                    String    @id(map: "idx_28863_PRIMARY_chatbot") @default(cuid()) @db.VarChar(191)
-  businessId            String    @db.VarChar(191)
-  name                  String    @db.VarChar(191)
+  id                    String        @id(map: "idx_28863_PRIMARY_chatbot") @default(cuid()) @db.VarChar(191)
+  businessId            String        @db.VarChar(191)
+  name                  String        @db.VarChar(191)
   systemInstruction     String?
   file                  File[]
   message               Message[]
   urlsToBusinessWebsite String?
   customConfigurations  Json?
-  createAt              DateTime  @default(now()) @db.Timestamptz(6)
-  updatedAt             DateTime  @updatedAt @db.Timestamptz(6)
-  Business              Business  @relation(fields: [businessId], references: [id])
+  createAt              DateTime      @default(now()) @db.Timestamptz(6)
+  updatedAt             DateTime      @updatedAt @db.Timestamptz(6)
+  whatsappEnabled       Boolean       @default(false)
+  whatsappPhoneNumber   String?       @db.VarChar(191)
+  Business              Business      @relation(fields: [businessId], references: [id])
   brands                Brand[]
   urlFiles              UrlFile[]
   chatbotUsers          ChatbotUser[]
@@ -105,21 +110,21 @@ model ChatbotUser {
 }
 
 model Message {
-  id            String   @id(map: "idx_28868_PRIMARY") @default(cuid()) @db.VarChar(191)
+  id            String       @id(map: "idx_28868_PRIMARY") @default(cuid()) @db.VarChar(191)
   text          String
   isUserMessage Boolean
-  createAt      DateTime @default(now()) @db.Timestamptz(6)
-  updatedAt     DateTime @updatedAt @db.Timestamptz(6)
-  userId        String?  @db.VarChar(191)
-  fileId        String?  @db.VarChar(191)
-  chatbotId     String?  @db.VarChar(191)
-  urlFileId     String?  @db.VarChar(191)
-  chatbotUserId String?  // New field to reference ChatbotUser
+  createAt      DateTime     @default(now()) @db.Timestamptz(6)
+  updatedAt     DateTime     @updatedAt @db.Timestamptz(6)
+  userId        String?      @db.VarChar(191)
+  fileId        String?      @db.VarChar(191)
+  chatbotId     String?      @db.VarChar(191)
+  urlFileId     String?      @db.VarChar(191)
+  chatbotUserId String?
   chatbotUser   ChatbotUser? @relation(fields: [chatbotUserId], references: [id])
-  User          User?    @relation(fields: [userId], references: [id])
-  File          File?    @relation(fields: [fileId], references: [id])
-  UrlFile       UrlFile? @relation(fields: [urlFileId], references: [id])
-  Chatbot       Chatbot? @relation(fields: [chatbotId], references: [id])
+  User          User?        @relation(fields: [userId], references: [id])
+  File          File?        @relation(fields: [fileId], references: [id])
+  UrlFile       UrlFile?     @relation(fields: [urlFileId], references: [id])
+  Chatbot       Chatbot?     @relation(fields: [chatbotId], references: [id])
 }
 
 enum File_uploadStatus {

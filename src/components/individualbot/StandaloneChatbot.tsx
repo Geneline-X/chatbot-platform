@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import ChatHeader from './ChatHeader';
 import ChatInput from './ChatInput';
 import useChatbotConfig from '@/lib/hooks/useChatbotConfig';
@@ -30,6 +30,8 @@ const StandaloneChatbot: React.FC<StandaloneChatbotProps> = ({ chatbotId }) => {
     widget: { welcomeMessage: '' },
   });
 
+  const chatContainerRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     //@ts-ignore
     if (config?.theme) {
@@ -57,6 +59,7 @@ const StandaloneChatbot: React.FC<StandaloneChatbotProps> = ({ chatbotId }) => {
     display: 'flex',
     flexDirection: 'column',
     overflow: 'hidden',
+    
   };
 
   const renderContent = () => {
@@ -86,7 +89,7 @@ const StandaloneChatbot: React.FC<StandaloneChatbotProps> = ({ chatbotId }) => {
           key={config?.id}
         />
         <div style={contentStyle}>
-          <div style={{ flex: 1, overflowY: 'auto' }}>
+          <div ref={chatContainerRef} style={{ flex: 1, overflowY: 'auto', marginBottom: "16px"}}>
             <Messages
               chatbotId={chatbotId}
               theme={theme}
@@ -108,7 +111,7 @@ const StandaloneChatbot: React.FC<StandaloneChatbotProps> = ({ chatbotId }) => {
         transition={{ duration: 0.5 }}
         style={containerStyle}
       >
-        <ChatContextProvider chatbotId={chatbotId}>
+        <ChatContextProvider chatbotId={chatbotId} chatContainerRef={chatContainerRef}>
           {renderContent()}
         </ChatContextProvider>
       </motion.div>

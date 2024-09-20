@@ -10,7 +10,11 @@ import { Button } from '../ui/button';
 import { Progress } from '../ui/progress';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const TextTrainSession: React.FC = () => {
+interface TextTrainSessionProps {
+  onTrainingStatusChange: (isTraining: boolean) => void;
+}
+
+const TextTrainSession: React.FC<TextTrainSessionProps> = ({ onTrainingStatusChange }) => {
   const [trainingMode, setTrainingMode] = useState<'guided' | 'random' | null>(null);
   const [guidedConversations, setGuidedConversations] = useState<{ question: string, answer: string }[]>([]);
   const [randomText, setRandomText] = useState<string>('');
@@ -39,6 +43,7 @@ const TextTrainSession: React.FC = () => {
     }
 
     setLoading(true);
+    onTrainingStatusChange(true); // Indicate training has started
     setTrainingProgress(0);
     try {
       let response;
@@ -68,7 +73,7 @@ const TextTrainSession: React.FC = () => {
         });
       }
       if (response?.ok) {
-        simulateTraining();
+        await simulateTraining();
         toast({ title: trainingMode === 'guided' ? "Conversations added" : "Data added" });
       } else {
         toast({ title: "Error training chatbot", variant: "destructive" });
@@ -76,6 +81,9 @@ const TextTrainSession: React.FC = () => {
     } catch (error) {
       toast({ title: "Error training chatbot", variant: "destructive" });
       console.error('Error training chatbot:', error);
+    } finally {
+      setLoading(false);
+      onTrainingStatusChange(false); // Indicate training has finished (success or error)
     }
   };
 
@@ -168,6 +176,7 @@ const TextTrainSession: React.FC = () => {
                 ref={textareaRef}
                 value={randomText}
                 onChange={(e) => setRandomText(e.target.value)}
+                minRows= {4}
                 placeholder="Paste your text here"
                 className={`w-full transition-all duration-300 ease-in-out ${showFullTextarea ? '' : 'max-h-[100px] overflow-hidden'}`}
               />
@@ -224,7 +233,7 @@ const TextTrainSession: React.FC = () => {
             {loading ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : null}
-            Train Chatbot
+            {loading ? 'Training in Progress...' : 'Train Chatbot'}
           </Button>
         </div>
       )}
