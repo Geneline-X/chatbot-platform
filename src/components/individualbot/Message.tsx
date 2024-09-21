@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from '@/lib/utils';
-import React, { forwardRef, useState, useContext } from 'react';
+import React, { forwardRef, useState } from 'react';
 import { Icons } from '../Icons';
 import ReactMarkdown from "react-markdown";
 import CopyToClipboard from 'react-copy-to-clipboard';
@@ -10,12 +10,10 @@ import { dark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import rehypeRaw from 'rehype-raw';
 import { Copy, Loader2 } from 'lucide-react';
 import remarkGfm from 'remark-gfm';
-import { ChatContex } from './ChatContext';
-import useChatbotConfig from '@/lib/hooks/useChatbotConfig';
 
 interface MessageProps {
   message: any;
-  chatbotId:string
+  chatbotId: string;
   isNextMessageSamePerson: boolean;
   theme: {
     primaryColor: string;
@@ -29,93 +27,98 @@ interface MessageProps {
   };
 }
 
-const currentTime = new Date();
-const formattedTime = `${currentTime.getHours()}:${currentTime.getMinutes().toString().padStart(2, '0')}`;
-
 const Message = forwardRef<HTMLDivElement, MessageProps>(({ message, isNextMessageSamePerson, theme, chatbotId }, ref) => {
   const [isCopied, setIsCopied] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleCopy = () => {
     setIsCopied(true);
-    setTimeout(() => setIsCopied(false), 1500); // Reset the copy state after 1.5 seconds
+    setTimeout(() => setIsCopied(false), 1500);
   };
 
-  
+  const currentTime = new Date();
+  const formattedTime = `${currentTime.getHours()}:${currentTime.getMinutes().toString().padStart(2, '0')}`;
+
   return (
-    <div ref={ref} className={cn('flex items-end', {
+    <div ref={ref} className={cn('flex items-end mb-4', {
       "justify-end": message.isUserMessage
     })}>
-      <div className={cn("relative flex h-6 w-6 aspect-square items-center", {
-        "order-2 bg-blue-500 rounded-sm": message.isUserMessage,
-        "order-1 bg-zinc-800 rounded-sm": !message.isUserMessage,
-        invisible: isNextMessageSamePerson
-      })}>
+      <div className={cn("relative flex h-8 w-8 aspect-square items-center justify-center rounded-full", {
+        "order-2 bg-blue-500": message.isUserMessage,
+        "order-1": !message.isUserMessage,
+        "invisible": isNextMessageSamePerson
+      })} style={{ backgroundColor: message.isUserMessage ? theme.primaryColor : theme.secondaryColor }}>
         {message.isUserMessage ? (
-          <Icons.user className='fill-zinc-200 text-zinc-200 h-3/4 w-3/4'/>
+          <Icons.user className='h-5 w-5' style={{ fill: theme.secondaryColor, color: theme.secondaryColor }} />
         ) : (
-          <Icons.logo className='fill-zinc-300 h-3/4 w-3/4'/>
+          <Icons.logo className='h-5 w-5' style={{ fill: theme.primaryColor, color: theme.primaryColor }} />
         )}
       </div>
       <div className={cn('flex flex-col space-y-2 text-base max-w-md mx-2', {
         "order-1 items-end": message.isUserMessage,
         "order-2 items-start": !message.isUserMessage
       })}>
-        <div className={cn("px-4 py-2 rounded-lg inline-block", {
-        //   "bg-blue-500 text-black": message.isUserMessage,
-        //   "bg-gray-200 text-gray-900": !message.isUserMessage,
+        <div className={cn("px-4 py-2 rounded-lg inline-block shadow-md", {
           "rounded-br-none": !isNextMessageSamePerson && message.isUserMessage,
           "rounded-bl-none": !isNextMessageSamePerson && !message.isUserMessage,
         })} style={{
-          backgroundColor: message.isUserMessage ? theme?.chatBubbleUserColor : theme?.chatBubbleBotColor,
-          color: theme?.fontColor || '#000',
+          backgroundColor: message.isUserMessage ? theme.chatBubbleUserColor : theme.chatBubbleBotColor,
+          color: message.isUserMessage ? theme.primaryColor : theme.secondaryColor,
         }}>
-          <div className='mr-auto flex justify-end'>
-            {isLoading ? (
-              <Loader2 className='w-6 h-6 animate-spin'/>
-            ) : null}
-          </div>
+          {isLoading && (
+            <div className='mr-auto flex justify-end mb-2'>
+              <Loader2 className='w-4 h-4 animate-spin' style={{ color: message.isUserMessage ? theme.primaryColor : theme.secondaryColor }} />
+            </div>
+          )}
           {typeof message.text === "string" ? (
-            <ReactMarkdown className={cn("prose", {
-              "text-zinc-50": message.isUserMessage
-            })}
-            remarkPlugins={[remarkGfm]}
-            components={{
-              a: ({ node, ...props }) => (
-                <a {...props} className="text-blue-400 hover:underline" target="_blank" rel="noopener noreferrer">
-                  {props.children}
-                </a>
-              ),
-            }}>
+            <ReactMarkdown
+              className="prose"
+              remarkPlugins={[remarkGfm]}
+              components={{
+                //@ts-ignore
+                code({ node, inline, className, children, ...props }) {
+                  const match = /language-(\w+)/.exec(className || '')
+                  return !inline && match ? (
+                    //@ts-ignore
+                    <SyntaxHighlighter
+                      {...props}
+                      style={dark}
+                      language={match[1]}
+                      PreTag="div"
+                    >{String(children).replace(/\n$/, '')}</SyntaxHighlighter>
+                  ) : (
+                    <code {...props} className={className}>
+                      {children}
+                    </code>
+                  )
+                },
+                a: ({ node, ...props }) => (
+                  <a {...props} className="text-blue-400 hover:underline" target="_blank" rel="noopener noreferrer">
+                    {props.children}
+                  </a>
+                ),
+              }}
+            >
               {message.text}
             </ReactMarkdown>
           ) : (
             message.text
           )}
-          {message.id !== 'loading-message' ? (
-            <>
-              <div className={cn("text-xs select-none mt-2 w-full txt-right", {
-                "text-zinc-500": !message.isUserMessage,
-                "text-blue-300": message.isUserMessage,
-              })}>
-                {formattedTime}
-              </div>
-              <div className='flex justify-end'>
-                <CopyToClipboard text={message.text as string} onCopy={handleCopy}>
-                  <button className={cn('text-xs flex cursor-pointer focus:outline-none', {
-                    "text-blue-400": !message.isUserMessage,
-                    "text-zinc-100": message.isUserMessage,
-                  })}>
-                    {isCopied ? 'Copied!' : (
-                      <>
-                        <Copy className='mr-2 w-4 h-4'/>Copy
-                      </>
-                    )}
-                  </button>
-                </CopyToClipboard>
-              </div>
-            </>
-          ) : null}
+          {message.id !== 'loading-message' && (
+            <div className="flex items-center justify-between mt-2">
+              <span className="text-xs opacity-50">{formattedTime}</span>
+              <CopyToClipboard text={message.text as string} onCopy={handleCopy}>
+                <button className="text-xs flex items-center cursor-pointer focus:outline-none opacity-50 hover:opacity-100 transition-opacity">
+                  {isCopied ? 'Copied!' : (
+                    <>
+                      <Copy className='mr-1 w-3 h-3' />
+                      Copy
+                    </>
+                  )}
+                </button>
+              </CopyToClipboard>
+            </div>
+          )}
         </div>
       </div>
     </div>

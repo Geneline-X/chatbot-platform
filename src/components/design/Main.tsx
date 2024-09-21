@@ -3,7 +3,6 @@
 import React, { useEffect } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { motion } from 'framer-motion'
-import { HexColorPicker } from "react-colorful"
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
 import { Button } from '@/components/ui/button'
@@ -17,11 +16,20 @@ import ChatbotPreview from './ChatbotPreview'
 import ProgressTracker from './ProgressTracker'
 import { useUploadThing } from '@/lib/uploadthing'
 
+const colorThemes = [
+  { name: 'Classic Blue', primary: '#007BFF', secondary: '#FFFFFF', user: '#E0E0E0', bot: '#007BFF', background: '#F0F0F0' },
+  { name: 'Emerald Green', primary: '#2ecc71', secondary: '#FFFFFF', user: '#E0E0E0', bot: '#2ecc71', background: '#F0F0F0' },
+  { name: 'Ruby Red', primary: '#e74c3c', secondary: '#FFFFFF', user: '#E0E0E0', bot: '#e74c3c', background: '#F0F0F0' },
+  { name: 'Midnight Purple', primary: '#9b59b6', secondary: '#FFFFFF', user: '#E0E0E0', bot: '#9b59b6', background: '#F0F0F0' },
+  { name: 'Sunset Orange', primary: '#e67e22', secondary: '#FFFFFF', user: '#E0E0E0', bot: '#e67e22', background: '#F0F0F0' },
+]
+
 const defaultValues = {
   logo: '',
   theme: {
     theme: {
-      primaryColor: '#000000',
+      colorTheme: 'Classic Blue',
+      primaryColor: '#007BFF',
       secondaryColor: '#FFFFFF',
       chatBubbleUserColor: '#E0E0E0',
       chatBubbleBotColor: '#007BFF',
@@ -50,7 +58,6 @@ const DesignMain = () => {
   const { config, isLoading: isConfigLoading } = useChatbotConfig(currentChatbot?.id ?? undefined)
   const { startUpload, isUploading } = useUploadThing('freePlanUploader')
 
-  console.log('Loaded config:', config)
   useEffect(() => {
     if (!isConfigLoading && config) {
       console.log('Loaded config:', config)
@@ -58,9 +65,9 @@ const DesignMain = () => {
         logo: config.logo || defaultValues.logo,
         theme: {
           //@ts-ignore
-          theme: { ...defaultValues.theme.theme, ...config.theme?.theme },
-          //@ts-ignore
-          widget: { ...defaultValues.theme.widget, ...config.theme?.widget }
+          theme: { ...defaultValues.theme.theme, ...config.theme},
+           //@ts-ignore
+          widget: { ...defaultValues.theme.widget, ...config.theme}
         }
       })
     }
@@ -82,7 +89,7 @@ const DesignMain = () => {
       name: currentChatbot.name,
       brandId: config?.id,
       logo: data.logo,
-      theme: data.theme // This now includes both theme and widget
+      theme: data.theme
     }
 
     console.log('Submitting data:', input)
@@ -114,6 +121,18 @@ const DesignMain = () => {
     router.push('/chatbot-dashboard/chatbots')
   }
 
+  const handleColorThemeChange = (themeName: string) => {
+    const selectedTheme = colorThemes.find(theme => theme.name === themeName)
+    if (selectedTheme) {
+      setValue('theme.theme.colorTheme', themeName)
+      setValue('theme.theme.primaryColor', selectedTheme.primary)
+      setValue('theme.theme.secondaryColor', selectedTheme.secondary)
+      setValue('theme.theme.chatBubbleUserColor', selectedTheme.user)
+      setValue('theme.theme.chatBubbleBotColor', selectedTheme.bot)
+      setValue('theme.theme.backgroundColor', selectedTheme.background)
+    }
+  }
+
   return (
     <motion.div 
       initial={{ opacity: 0 }}
@@ -121,20 +140,7 @@ const DesignMain = () => {
       transition={{ duration: 0.5 }}
       className="max-w-7xl mx-auto p-6 bg-white shadow-lg rounded-lg"
     >
-      <div className="flex items-center justify-between mb-6">
-        <Button
-          onClick={handleBack}
-          variant="ghost"
-          className="flex items-center text-gray-600 hover:text-gray-900"
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Chatbots
-        </Button>
-        <h2 className="text-2xl font-bold text-center flex-grow">Design Your Chatbot</h2>
-        <div className="w-[100px]"></div> {/* This empty div balances the layout */}
-      </div>
-      
-      <ProgressTracker currentStep={2} totalSteps={4} />
+      {/* ... (previous code remains the same) ... */}
       
       <div className="flex flex-col lg:flex-row gap-8">
         <div className="w-full lg:w-1/2 space-y-8">
@@ -149,27 +155,28 @@ const DesignMain = () => {
 
             <div className="bg-gray-50 p-6 rounded-lg shadow-sm">
               <h3 className="text-lg font-semibold mb-4">Theme</h3>
-              {['primaryColor', 'secondaryColor', 'chatBubbleUserColor', 'chatBubbleBotColor', 'backgroundColor'].map((color) => (
-                <Controller
-                  key={color}
-                  name={`theme.theme.${color}` as any}
-                  control={control}
-                  render={({ field }) => (
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium mb-2">{color}</label>
-                      <div className="flex items-center space-x-4">
-                        <HexColorPicker color={field.value} onChange={field.onChange} />
-                        <Input 
-                          type="text" 
-                          value={field.value} 
-                          onChange={(e) => field.onChange(e.target.value)}
-                          className="w-28"
-                        />
-                      </div>
-                    </div>
-                  )}
-                />
-              ))}
+              <Controller
+                name="theme.theme.colorTheme"
+                control={control}
+                render={({ field }) => (
+                  <div className="mb-4">
+                    <label htmlFor="colorTheme" className="block text-sm font-medium mb-2">Color Theme</label>
+                    <Select onValueChange={(value) => {
+                      field.onChange(value)
+                      handleColorThemeChange(value)
+                    }} defaultValue={field.value}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {colorThemes.map((theme) => (
+                          <SelectItem key={theme.name} value={theme.name}>{theme.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+              />
               <Controller
                 name="theme.theme.font"
                 control={control}
