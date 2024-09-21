@@ -15,7 +15,7 @@ interface MainProps {
   chatbotId: string;
 }
 
-const Main: React.FC<MainProps> = ({ chatbotId }) => {
+const Main: React.FC = () => {
   const [activeTab, setActiveTab] = useState("upload");
   const [isTraining, setIsTraining] = useState(false);
   const [showToast, setShowToast] = useState(false);
