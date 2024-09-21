@@ -84,7 +84,7 @@ export default App;
             <TabsTrigger value="install">Installation</TabsTrigger>
             <TabsTrigger value="usage">Usage</TabsTrigger>
             <TabsTrigger value="embed">Link</TabsTrigger>
-            <TabsTrigger value="whatsapp">WhatsApp</TabsTrigger>
+            {/* <TabsTrigger value="whatsapp">WhatsApp</TabsTrigger> */}
           </TabsList>
           
           <TabsContent value="install">
@@ -129,7 +129,7 @@ export default App;
             </Button>
           </TabsContent>
           
-          <TabsContent value="whatsapp">
+          {/* <TabsContent value="whatsapp">
             <h3 className="text-lg font-semibold mb-2">Deploy to WhatsApp</h3>
             {whatsappNumber ? (
               <div>
@@ -147,7 +147,7 @@ export default App;
             //   </Button>
             // )
             }
-          </TabsContent>
+          </TabsContent> */}
         </Tabs>
         
         <Button 
