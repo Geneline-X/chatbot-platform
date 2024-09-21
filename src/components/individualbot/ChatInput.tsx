@@ -6,6 +6,7 @@ import { Button } from '../ui/button';
 import { Send } from 'lucide-react';
 import { ChatContex } from './ChatContext';
 import { isValidEmail } from '@/lib/utils';
+import Link from 'next/link';
 
 interface ChatInputProps {
   theme: {
@@ -44,26 +45,26 @@ const ChatInput: React.FC<ChatInputProps> = ({ theme }) => {
     >
       {isValidEmail(email) ? (
         <div className="flex items-center w-full max-w-3xl space-x-2">
-        <Textarea
-          placeholder='Type a message...'
-          value={message}
-          onChange={handleInputChange}
-          onKeyDown={handleKeyDown} 
-          style={{ 
-            backgroundColor: 'transparent', 
-            color: theme.fontColor || '#000', 
-            border: `1px solid ${theme.primaryColor}`,
-            width: '100%',
-          }}
-          className="flex-1 resize-none p-2"
-          rows={1}
-          disabled={!isValidEmail(email) || isLoading}
-        />
-        <Button onClick={() => addMessage()} style={{ backgroundColor: theme.primaryColor }} disabled={isLoading}>
-          <Send />
-        </Button>
-      </div>
-       ):null}
+          <Textarea
+            placeholder='Type a message...'
+            value={message}
+            onChange={handleInputChange}
+            onKeyDown={handleKeyDown} 
+            style={{ 
+              backgroundColor: 'transparent', 
+              color: theme.fontColor || '#000', 
+              border: `1px solid ${theme.primaryColor}`,
+              width: '100%',
+            }}
+            className="flex-1 resize-none p-2"
+            rows={1}
+            disabled={!isValidEmail(email) || isLoading}
+          />
+          <Button onClick={() => addMessage()} style={{ backgroundColor: theme.primaryColor }} disabled={isLoading}>
+            <Send />
+          </Button>
+        </div>
+      ) : null}
       
       <div 
         style={{
@@ -82,7 +83,19 @@ const ChatInput: React.FC<ChatInputProps> = ({ theme }) => {
             fontWeight: 500,
           }}
         >
-          Powered by <span style={{ fontWeight: 700 }}>Geneline-X</span>
+          Powered by{' '}
+          <Link 
+            href="https://geneline-x.net" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            style={{
+              fontWeight: 700,
+              textDecoration: 'none',
+              color: theme.primaryColor,
+            }}
+          >
+            Geneline-X
+          </Link>
         </p>
       </div>
     </div>

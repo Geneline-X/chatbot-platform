@@ -1,5 +1,5 @@
 "use client"
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import FileUploadDropzone from './FileUploadDropzone';
 import UploadProgressList from './UploadProgressList';
@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { FileText, Upload } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useChatbot } from '../business/BusinessContext';
+import { toast } from '../ui/use-toast';
 
 interface MainProps {
   chatbotId: string;
@@ -17,12 +18,44 @@ interface MainProps {
 const Main: React.FC<MainProps> = ({ chatbotId }) => {
   const [activeTab, setActiveTab] = useState("upload");
   const [isTraining, setIsTraining] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+
+  const { currentChatbot } = useChatbot()
 
   const handleTrainingStatusChange = (trainingStatus: boolean) => {
     setIsTraining(trainingStatus);
+    if (!trainingStatus) {
+      setShowToast(true);
+    }
   };
 
-  const { currentChatbot } = useChatbot()
+  useEffect(() => {
+    if (showToast) {
+      toast({
+        title: "Training session complete",
+        description: (
+          <div>
+            <p>You can now:</p>
+            <Button 
+              onClick={() => setActiveTab("upload")} 
+              variant="outline"
+              className="mr-2 mt-2"
+            >
+              Add more data
+            </Button>
+            <Link href={`/chatbot-dashboard/chatbots/${currentChatbot?.id}`}>
+              <Button variant="default">
+                Test your bot
+              </Button>
+            </Link>
+          </div>
+        ),
+        duration: 5000,
+      });
+      setShowToast(false);
+    }
+  }, [showToast, currentChatbot]);
+
   return (
     <div className="p-6 bg-white shadow-lg rounded-lg">
       <div className="flex justify-between items-center mb-6">
