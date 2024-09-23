@@ -54,7 +54,7 @@ export const POST = async(req: NextRequest) => {
             orderBy:{
                 createAt: "asc"
             },
-            take: 6
+            take: 10
         })
     
          
