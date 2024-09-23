@@ -46,7 +46,7 @@ export const POST = async(req: NextRequest) => {
             });
         }
 
-        const prevMessages = email ? await db.message.findMany({
+        const prevMessages = await db.message.findMany({
             where: {
               chatbotUserId: chatbotUser?.id!,
                 chatbotId, 
@@ -55,16 +55,16 @@ export const POST = async(req: NextRequest) => {
                 createAt: "asc"
             },
             take: 6
-        }) : getInMemoryMessages(sessionId!)
+        })
     
          
          const formattedPrevMessages = prevMessages.map((msg:any) => {
             return {
               role: msg.isUserMessage ? "user" : "model",
-              parts: msg.text,
+              parts: [{text: msg.text}],
             };
           });
-
+          
           let createMessage = await db.message.create({
             data: {
                 text: message,
@@ -114,7 +114,7 @@ export const POST = async(req: NextRequest) => {
           }else{
               chat = llm.startChat({
                // chathistory should be here
-              //  history: formattedPrevMessages,
+                history: formattedPrevMessages,
                 generationConfig: chatConfigObject
             });
         }
