@@ -16,6 +16,9 @@ model User {
   monimeSubscriptionId    String?    @unique(map: "idx_28874_User_monime_subscription_id_key") @map("monime_subscription_id") @db.VarChar(191)
   monimeSessionId         String?    @map("monime_session_id") @db.VarChar(191)
   monimeUrl               String?    @map("monime_url") @db.VarChar(191)
+  licenseKey              String?
+  licenseStatus           String?  // e.g., "active", "inactive", "deactivated"
+  licenseTier             Int?
   monimeCurrentPeriodsEnd DateTime?  @map("monime_current_period_end") @db.Timestamptz(6)
   File                    File[]
   currentPrice            String?    @map("current_price") @db.VarChar(191)
