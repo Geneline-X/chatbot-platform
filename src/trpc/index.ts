@@ -217,6 +217,7 @@ export const appRouter = router({
    deleteChatbot: PrivateProcedure.input(z.object({
     id: z.string()
   })).mutation(async ({ input }) => {
+   try {
     const { id } = input;
   
     console.log('this is the id: ', id);
@@ -236,6 +237,11 @@ export const appRouter = router({
         chatbotId: chatbot.id
       }
     });
+    const chatbotUsers = await db.chatbotUser.findMany({
+      where: {
+        chatbotId: chatbot.id
+      }
+    })
   
     // Delete the associated brand if it exists
     if (brand) {
@@ -244,6 +250,17 @@ export const appRouter = router({
           id: brand.id
         }
       });
+    }
+
+     // Delete all associated chatbot users
+    if (chatbotUsers.length > 0) {
+      await Promise.all(chatbotUsers.map(user => 
+        db.chatbotUser.delete({
+          where: {
+            id: user.id
+          }
+        })
+      ));
     }
   
     // Now delete the chatbot
@@ -254,6 +271,9 @@ export const appRouter = router({
     console.log('Chatbot and associated brand deleted successfully');
     
     return { success: true };
+   } catch (error) {
+    console.log(error)
+   }
   }),
   
 
