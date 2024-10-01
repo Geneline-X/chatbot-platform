@@ -59,6 +59,7 @@ model Chatbot {
   brands                Brand[]
   urlFiles              UrlFile[]
   chatbotUsers          ChatbotUser[]
+  interactions         ChatbotInteraction[]
 }
 
 model Brand {
@@ -108,6 +109,7 @@ model ChatbotUser {
   createAt    DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   messages    Message[]
+  interactions    ChatbotInteraction[]
   chatbotId   String
   chatbot     Chatbot   @relation(fields: [chatbotId], references: [id])
 }
@@ -123,11 +125,36 @@ model Message {
   chatbotId     String?      @db.VarChar(191)
   urlFileId     String?      @db.VarChar(191)
   chatbotUserId String?
+  interactionId String?
   chatbotUser   ChatbotUser? @relation(fields: [chatbotUserId], references: [id])
   User          User?        @relation(fields: [userId], references: [id])
   File          File?        @relation(fields: [fileId], references: [id])
   UrlFile       UrlFile?     @relation(fields: [urlFileId], references: [id])
   Chatbot       Chatbot?     @relation(fields: [chatbotId], references: [id])
+  interaction     ChatbotInteraction? @relation(fields: [interactionId], references: [id])
+}
+
+model BusinessReply {
+  id                  String             @id @default(cuid())
+  text                String
+  chatbotInteractionId String
+  chatbotInteraction  ChatbotInteraction @relation(fields: [chatbotInteractionId], references: [id])
+  timestamp           DateTime           @default(now())
+  sentBy              String?            // Could be used to identify which business user sent the reply
+}
+
+model ChatbotInteraction {
+  id              String       @id @default(cuid())
+  chatbotId       String
+  chatbotUserId   String
+  messages        Message[]
+  timestamp       DateTime     @default(now())
+  sentiment       String?      // e.g., "positive", "negative", "neutral"
+  category        String?      // e.g., "product inquiry", "support", "feedback"
+  resolved        Boolean      @default(false)
+  businessReplies BusinessReply[]
+  chatbot         Chatbot      @relation(fields: [chatbotId], references: [id])
+  chatbotUser     ChatbotUser  @relation(fields: [chatbotUserId], references: [id])
 }
 
 enum File_uploadStatus {

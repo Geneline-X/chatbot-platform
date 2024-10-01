@@ -9,7 +9,7 @@ import { Input } from '../ui/input';
 import { Button } from '../ui/button';
 import { Progress } from '../ui/progress';
 import { motion, AnimatePresence } from 'framer-motion';
-
+import { useFileHelpers } from '@/lib/hooks/useFileHelpers';
 interface TextTrainSessionProps {
   onTrainingStatusChange: (isTraining: boolean) => void;
 }
@@ -28,6 +28,7 @@ const TextTrainSession: React.FC<TextTrainSessionProps> = ({ onTrainingStatusCha
 
   const { currentChatbot } = useChatbot();
 
+  const { processingUrl } = useFileHelpers()
   const handleAddGuidedConversation = () => {
     if (currentQuestion && currentAnswer) {
       setGuidedConversations([...guidedConversations, { question: currentQuestion, answer: currentAnswer }]);
@@ -48,26 +49,28 @@ const TextTrainSession: React.FC<TextTrainSessionProps> = ({ onTrainingStatusCha
     try {
       let response;
       if (trainingMode === 'guided') {
-        response = await fetch("https://geneline-x-main-pipeline.vercel.app/chatbot-upload/text", {
+        response = await fetch(`${processingUrl}/text`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
           },
           body: JSON.stringify({
-            chatbotName: currentChatbot.name, 
+            chatbotName: currentChatbot.name,
+            chatbotId:  currentChatbot.id,  
             mode: 'guided', 
             conversations: guidedConversations
           })
         });
       } else if (trainingMode === 'random') {
-        response = await fetch("https://geneline-x-main-pipeline.vercel.app/chatbot-upload/text", {
+        response = await fetch(`${processingUrl}/text`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
           },
           body: JSON.stringify({
             text: randomText, 
-            chatbotName: currentChatbot.name, 
+            chatbotName: currentChatbot.name,
+            chatbotId:  currentChatbot.id, 
             mode: 'random'
           })
         });

@@ -115,6 +115,217 @@ export const appRouter = router({
       },
     });
   }),
+  // get chatbot users //
+  getChatbotUsers: PrivateProcedure.input(z.object({
+    chatbotId: z.string(),
+    cursor: z.string().nullish(),
+    limit: z.number().min(1).max(100).nullish(),
+  })).query(async ({ input }) => {
+      const { chatbotId, cursor, limit = 20 } = input;
+
+      const users = await db.chatbotUser.findMany({
+        where: { chatbotId },
+        take: limit! + 1,
+        cursor: cursor ? { id: cursor } : undefined,
+        orderBy: { createAt: 'desc' },
+        include: {
+          _count: {
+            select: { messages: true, interactions: true }
+          }
+        }
+      });
+      
+      console.log(`Found ${users.length} users for chatbotId: ${chatbotId}`);
+
+      let nextCursor: typeof cursor | undefined = undefined;
+      if (users.length > limit!) {
+        const nextItem = users.pop();
+        nextCursor = nextItem?.id;
+      }
+
+    
+      return {
+        users,
+        nextCursor,
+      };
+  }),
+
+    // Get interactions for a specific chatbot user
+    getUserInteractions: PrivateProcedure.input(z.object({
+      chatbotUserId: z.string(),
+      cursor: z.string().nullish(),
+      limit: z.number().min(1).max(100).nullish(),
+    })).query(async ({ input }) => {
+        const { chatbotUserId, cursor, limit = 20 } = input;
+        const interactions = await db.chatbotInteraction.findMany({
+          where: { chatbotUserId },
+          take: limit! + 1,
+          cursor: cursor ? { id: cursor } : undefined,
+          orderBy: { timestamp: 'desc' },
+          include: {
+            messages: {
+              take: 1,
+              orderBy: { createAt: 'asc' },
+            },
+          },
+        });
+
+        let nextCursor: typeof cursor | undefined = undefined;
+          if (interactions.length > limit!) {
+            const nextItem = interactions.pop();
+            nextCursor = nextItem?.id;
+          }
+
+          return {
+            interactions,
+            nextCursor,
+          };
+    }),
+
+    getInteractionDetails: PrivateProcedure.input(z.object({
+      interactionId: z.string(),
+    })).query(async ({ input }) => {
+      const { interactionId } = input;
+      const interaction = await db.chatbotInteraction.findUnique({
+        where: { id: interactionId },
+        include: {
+          messages: {
+            orderBy: { createAt: 'asc' },
+          },
+          businessReplies: {
+            orderBy: { timestamp: 'asc' },
+          },
+        },
+      });
+  
+      return interaction;
+    }),
+     // Send a direct message to a chatbot user
+  sendDirectMessage: PrivateProcedure.input(z.object({
+    chatbotUserId: z.string(),
+    message: z.string(),
+    chatbotId: z.string(),
+  })).mutation(async ({ input }) => {
+    const { chatbotUserId, message, chatbotId } = input;
+
+    const interaction = await db.chatbotInteraction.create({
+      data: {
+        chatbotId,
+        chatbotUserId,
+        messages: {
+          create: {
+            text: message,
+            isUserMessage: false,
+            chatbotUserId,
+            chatbotId,
+          },
+        },
+          businessReplies: {
+            create: {
+              text: message,
+              sentBy: 'Business', // You might want to include the actual user who sent this
+            },
+          },
+        },
+      });
+
+      return interaction;
+  }),
+
+  // Update interaction (e.g., mark as resolved)
+  updateInteraction: PrivateProcedure.input(z.object({
+    interactionId: z.string(),
+    resolved: z.boolean().optional(),
+    category: z.string().optional(),
+    sentiment: z.string().optional(),
+  })).mutation(async ({ input }) => {
+    const { interactionId, ...updateData } = input;
+
+    const updatedInteraction = await db.chatbotInteraction.update({
+      where: { id: interactionId },
+      data: updateData,
+    });
+
+    return updatedInteraction;
+  }),
+
+    // Get analytics for a chatbot
+    getChatbotAnalytics: PrivateProcedure.input(z.object({
+      chatbotId: z.string(),
+      startDate: z.date().optional(),
+      endDate: z.date().optional(),
+    })).query(async ({ input }) => {
+      const { chatbotId, startDate, endDate } = input;
+  
+      const whereClause = {
+        chatbotId,
+        ...(startDate && endDate ? { timestamp: { gte: startDate, lte: endDate } } : {}),
+      };
+  
+      const totalInteractions = await db.chatbotInteraction.count({ where: whereClause });
+      const resolvedInteractions = await db.chatbotInteraction.count({ 
+        where: { ...whereClause, resolved: true } 
+      });
+
+      const sentimentCounts = await db.chatbotInteraction.groupBy({
+        by: ['sentiment'],
+        where: whereClause,
+        _count: true,
+      });
+  
+      const categoryCounts = await db.chatbotInteraction.groupBy({
+        by: ['category'],
+        where: whereClause,
+        _count: true,
+      });
+  
+      return {
+        totalInteractions,
+        resolvedInteractions,
+        sentimentCounts,
+        categoryCounts,
+      };
+    }),
+
+    getMessageDetails: PrivateProcedure.input(z.object({
+      messageId: z.string(),
+    })).query(async ({ input }) => {
+      const { messageId } = input;
+      const message = await db.message.findUnique({
+        where: { id: messageId },
+        include: {
+          chatbotUser: true,
+        },
+      });
+    
+      return message;
+    }),
+
+    getChatbotUserMessages: PrivateProcedure.input(z.object({
+      chatbotUserId: z.string(),
+      cursor: z.string().nullish(),
+      limit: z.number().min(1).max(100).nullish(),
+    })).query(async ({ input }) => {
+      const { chatbotUserId, cursor, limit = 20 } = input;
+      const messages = await db.message.findMany({
+        where: { chatbotUserId },
+        take: limit! + 1,
+        cursor: cursor ? { id: cursor } : undefined,
+        orderBy: { createAt: 'asc' },
+      });
+    
+      let nextCursor: typeof cursor | undefined = undefined;
+      if (messages.length > limit!) {
+        const nextItem = messages.pop();
+        nextCursor = nextItem?.id;
+      }
+    
+      return {
+        messages,
+        nextCursor,
+      };
+    }),
+
    getChatbotMessages: publicProcedure.input(z.object({
     limit: z.number().min(1).max(100).nullish(),
     cursor: z.string().nullish(),
@@ -344,7 +555,7 @@ export const appRouter = router({
     return userEmails;
   }),
 
-   updateBusiness: PrivateProcedure.input(z.object({
+  updateBusiness: PrivateProcedure.input(z.object({
     id: z.string(),
     name: z.string().optional(),
     description: z.string().optional(),

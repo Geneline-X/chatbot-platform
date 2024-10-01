@@ -34,11 +34,13 @@ const FileUploadDropzone: React.FC<FileUploadDropzoneProps> = ({ isSubscribed,on
         await Promise.all(res.map(async (file) => {
           const { extension, name } = getFileType(file.name)
           const endpoint = getEndpointByFileType(name)
+          console.log(currentChatbot?.id)
           await makeRequest({
             endpoint,
             file,
             extension,
             chatbotName: currentChatbot?.name,
+            chatbotId:  currentChatbot?.id, 
             userId: currentBusiness?.userId
           });
         }));

@@ -1,6 +1,11 @@
 import { useState } from 'react';
 
+
+  // 'https://geneline-x-main-pipeline.vercel.app/chatbot-upload'
+
 export const useFileHelpers = () => {
+  const processingUrl = 'https://geneline-x-main-pipeline.vercel.app/chatbot-upload'
+
   const getFileType = (fileName: string): { extension: string; name: string } => {
     const extension = fileName.split('.').pop()?.toLowerCase();
     switch (extension) {
@@ -35,13 +40,13 @@ export const useFileHelpers = () => {
   const getEndpointByFileType = (fileType: string): string => {
     switch (fileType) {
       case 'image':
-        return 'https://geneline-x-main-pipeline.vercel.app/chatbot-upload/image';
+        return `${processingUrl}/image`;
       case 'video':
-        return 'https://geneline-x-main-pipeline.vercel.app/chatbot-upload/video';
+        return `${processingUrl}/video`;
       case 'audio':
-        return 'https://geneline-x-main-pipeline.vercel.app/chatbot-upload/audio';
+        return `${processingUrl}/audio`;
       case 'pdf':
-        return 'https://geneline-x-main-pipeline.vercel.app/chatbot-upload/pdf';
+        return `${processingUrl}/pdf`;
       default:
         throw new Error('Unsupported file type');
     }
@@ -52,11 +57,13 @@ export const useFileHelpers = () => {
     file,
     extension,
     chatbotName,
+    chatbotId
   }: {
     endpoint: string;
     file: any;
     extension: string;
     chatbotName: string | undefined;
+    chatbotId: string | undefined;
     userId: string | undefined;
   }) => {
     try {
@@ -69,6 +76,7 @@ export const useFileHelpers = () => {
           createdFile: file,
           mimeType: extension,
           chatbotName: chatbotName,
+          chatbotId: chatbotId
         }),
       });
 
@@ -100,5 +108,5 @@ export const useFileHelpers = () => {
     }
   };
 
-  return { getFileType, getEndpointByFileType, makeRequest, updateStatusInDb };
+  return { getFileType, getEndpointByFileType, makeRequest, updateStatusInDb, processingUrl };
 };

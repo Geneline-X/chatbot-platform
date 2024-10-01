@@ -34,17 +34,20 @@ export const getFileType = (fileName: string): {extension:string, name:string} =
     }
 };
   
-  
+  export const processingUrl = 'https://geneline-x-main-pipeline.vercel.app/chatbot-upload'
+
+  // 'https://geneline-x-main-pipeline.vercel.app/chatbot-upload'
+
   export const getEndpointByFileType = (fileType: string): string => {
     switch (fileType) {
       case 'image':
-        return 'https://geneline-x-main-pipeline.vercel.app/chatbot-upload/image';
+        return  `${processingUrl}/image`
       case 'video':
-        return 'https://geneline-x-main-pipeline.vercel.app/chatbot-upload/video';
+        return `${processingUrl}/video`;
       case 'audio':
-        return 'https://geneline-x-main-pipeline.vercel.app/chatbot-upload/audio';
+        return `${processingUrl}/audio`;
       case 'pdf':
-        return 'https://geneline-x-main-pipeline.vercel.app/chatbot-upload/pdf';
+        return `${processingUrl}/pdf`;
       default:
         throw new Error('Unsupported file type');
     }
@@ -60,9 +63,16 @@ type MakeRequestType = {
   file: any,
   extension:string
   chatbotName:string | undefined
+  chatbotId:  string | undefined, 
   userId:string | undefined
 }
-export const makeRequest = async({endpoint, file, extension, chatbotName, userId}: MakeRequestType) => {
+export const makeRequest = async({
+  endpoint, 
+  file, extension, 
+  chatbotName, 
+  chatbotId,
+  userId
+}: MakeRequestType)  => {
   try {
     // const isFileExists = await db.file.findFirst({ where: { key: file.key } });
     // if (isFileExists) return;
@@ -87,7 +97,8 @@ export const makeRequest = async({endpoint, file, extension, chatbotName, userId
       body: JSON.stringify({ 
         createdFile: file,
         mimeType: extension,
-        chatbotName: chatbotName 
+        chatbotName: chatbotName,
+        chatbotId: chatbotId 
       }),
     });
 
@@ -120,31 +131,31 @@ export const updateStatusInDb = async({uploadStatus, createdFile}: UploadTypes) 
 }
 
 // In-memory cache to store embeddings
-const embeddingsCache: { [chatbotName: string]: { id: string, embedding: number[], pageText?: string, textUrl?:string }[] } = {};
+const embeddingsCache: { [chatbotId: string]: { id: string, embedding: number[], pageText?: string, textUrl?:string }[] } = {};
 
 // Timeouts for cache invalidation
-const cacheTimeouts: { [chatbotName: string]: NodeJS.Timeout } = {};
+const cacheTimeouts: { [chatbotId: string]: NodeJS.Timeout } = {};
 
 // Function to retrieve embeddings from Firestore with caching and cache expiration
-const getEmbeddingsFromFirestore = async (chatbotName: string) => {
+const getEmbeddingsFromFirestore = async (chatbotId: string) => {
   // Check if embeddings for the fileId are already in the cache
   console.log("get embeddings starts")
-  if (embeddingsCache[chatbotName]) {
-    console.log('Returning cached embeddings for fileId:', chatbotName);
+  if (embeddingsCache[chatbotId]) {
+    console.log('Returning cached embeddings for fileId:', chatbotId);
 
     // Clear the existing timeout and set a new one to extend the cache expiration
-    clearTimeout(cacheTimeouts[chatbotName]);
-    cacheTimeouts[chatbotName] = setTimeout(() => {
-      delete embeddingsCache[chatbotName];
-      delete cacheTimeouts[chatbotName];
-      console.log('Cache for fileId expired and removed:', chatbotName);
+    clearTimeout(cacheTimeouts[chatbotId]);
+    cacheTimeouts[chatbotId] = setTimeout(() => {
+      delete embeddingsCache[chatbotId];
+      delete cacheTimeouts[chatbotId];
+      console.log('Cache for fileId expired and removed:', chatbotId);
     }, 10 * 60 * 1000); // 10 minutes
 
-    return embeddingsCache[chatbotName];
+    return embeddingsCache[chatbotId];
   }
 
   // If not in cache, retrieve from Firestore
-  const q = query(collection(vectordb, chatbotName));
+  const q = query(collection(vectordb, chatbotId));
   const querySnapshot = await getDocs(q);
   const embeddings: { id: string, embedding: number[], pageText?:string, textUrl?: string }[] = [];
   querySnapshot.forEach((doc) => {
@@ -152,16 +163,17 @@ const getEmbeddingsFromFirestore = async (chatbotName: string) => {
   });
 
   // Store retrieved embeddings in the cache
-  embeddingsCache[chatbotName] = embeddings;
+  embeddingsCache[chatbotId] = embeddings;
 
   // Set a timeout to remove the cache after 10 minutes
-  cacheTimeouts[chatbotName] = setTimeout(() => {
-    delete embeddingsCache[chatbotName];
-    delete cacheTimeouts[chatbotName];
-    console.log('Cache for fileId expired and removed:', chatbotName);
+  cacheTimeouts[chatbotId] = setTimeout(() => {
+    delete embeddingsCache[chatbotId];
+    delete cacheTimeouts[chatbotId];
+    console.log('Cache for fileId expired and removed:', chatbotId);
   }, 10 * 60 * 1000); // 10 minutes
 
-
+//   const context = embeddings.map(embed => embed.pageText)
+// console.log("this is the complete embedding: ", context)
   return embeddings;
 };
 
@@ -195,7 +207,10 @@ export const cosineSimilaritySearch = async ({message, chatbot, topN = 8}:any) =
     const messageEmbedding = (await model.embedContent(message)).embedding.values;
     
     // Retrieve all embeddings from Firestore for the specified fileId
-    const embeddings = await getEmbeddingsFromFirestore(chatbot.name);
+    if(!chatbot.id){
+      throw new Error("chatbot id empty please provide one: ")
+    }
+    const embeddings = await getEmbeddingsFromFirestore(chatbot?.id);
 
     // Find the top N similar embeddings
     const topSimilarEmbeddings = findTopNSimilarEmbeddings(messageEmbedding, embeddings, topN);
@@ -203,6 +218,7 @@ export const cosineSimilaritySearch = async ({message, chatbot, topN = 8}:any) =
     // Extract and join the individual numbers of the embeddings into a single string
     const joinedEmbeddings = topSimilarEmbeddings.map(e => e.embedding.slice(0,topN)).flat().join(' ');
     const contexts = topSimilarEmbeddings.map(e => e.pageText).join('\n\n');
+   
     return contexts ? { joinedEmbeddings, contexts } : {joinedEmbeddings};
 
   } catch (error) {
@@ -227,17 +243,72 @@ export const generateSystemInstruction = async(useOfChatbot: string | undefined)
   }
 }
 
-export const getFullContextFromFirestore = async (chatbotName: string) => {
-  // Retrieve full context (pageText) from Firestore
-  const q = query(collection(vectordb, chatbotName));
-  const querySnapshot = await getDocs(q);
-  
-  // Collect full context
+// In-memory cache to store context
+const contextCache: { [key: string]: string } = {};
+
+// Timeouts for cache invalidation
+const contextCacheTimeouts: { [key: string]: NodeJS.Timeout } = {};
+interface Chatbot {
+  id: string;
+  name: string;
+}
+
+export const getFullContextFromFirestore = async (chatbot: any) => {
+  console.log("Getting full context for chatbot:", chatbot.id, chatbot.name);
+
+  // Check if context is already in the cache (try both id and name)
+  if (contextCache[chatbot.id] || contextCache[chatbot.name]) {
+    const cacheKey = contextCache[chatbot.id] ? chatbot.id : chatbot.name;
+    console.log('Returning cached context for:', cacheKey);
+
+    // Clear the existing timeout and set a new one to extend the cache expiration
+    clearTimeout(contextCacheTimeouts[cacheKey]);
+    contextCacheTimeouts[cacheKey] = setTimeout(() => {
+      delete contextCache[cacheKey];
+      delete contextCacheTimeouts[cacheKey];
+      console.log('Cache for chatbot context expired and removed:', cacheKey);
+    }, 10 * 60 * 1000); // 10 minutes
+    
+    return contextCache[cacheKey];
+  }
+
   let fullContext = '';
+
+  // Try to retrieve context using the ID first
+  let q = query(collection(vectordb, chatbot.id));
+  let querySnapshot = await getDocs(q);
+
+  // If no results found with ID, try using the name
+  if (querySnapshot.empty) {
+    console.log('No results found for ID, trying with name');
+    q = query(collection(vectordb, chatbot.name));
+    querySnapshot = await getDocs(q);
+  }
+
   querySnapshot.forEach((doc) => {
-    fullContext += doc.data().pageText + '\n\n'; // Append all pageText from Firestore
+    const pageText = doc.data().pageText;
+    if (pageText) {
+      fullContext += pageText + '\n\n';
+    }
   });
 
-  console.log(fullContext)
+  // If still no results, log an error
+  if (fullContext === '') {
+    console.error('No context found for chatbot:', chatbot.id, chatbot.name);
+    return '';
+  }
+
+  // Store retrieved context in the cache (use ID for new cache entries)
+  contextCache[chatbot.id] = fullContext.trim();
+
+  // Set a timeout to remove the cache after 10 minutes
+  contextCacheTimeouts[chatbot.id] = setTimeout(() => {
+    delete contextCache[chatbot.id];
+    delete contextCacheTimeouts[chatbot.id];
+    console.log('Cache for chatbot context expired and removed:', chatbot.id);
+  }, 10 * 60 * 1000); // 10 minutes
+
+  console.log(`Retrieved context for ${chatbot.id}. Length: ${fullContext.length} characters`);
+  console.log(`First 500 characters: ${fullContext.substring(0, 500)}...`);
   return fullContext.trim();
 };

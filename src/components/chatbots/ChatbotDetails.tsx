@@ -10,7 +10,7 @@ import { Button, buttonVariants } from "../ui/button";
 import { toast } from "../ui/use-toast";
 import Link from "next/link";
 import ExportChatbotModal from "./ExportChatbotModal";
-import { Loader2, Info, Settings, Brain } from "lucide-react";
+import { Loader2, Info, Settings, Brain, MessageSquare } from "lucide-react";
 import { MyLoader } from "../MyLoader";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
 
@@ -118,6 +118,11 @@ const ChatbotDetails = ({ chatbot, onBack }: ChatbotDetailsProps) => {
             <Button onClick={handleChatbotExport} className="bg-white text-blue-600 hover:bg-blue-50">
               {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Export"}
             </Button>
+            <Link href={`/chatbot-dashboard/chatbots/${chatbot.id}/interaction`}>
+            <Button variant="secondary" className="bg-white/20 hover:bg-white/30">
+              <MessageSquare className="mr-2 h-4 w-4" /> View Interactions
+            </Button>
+            </Link>
             <Link href={`/chatbot-dashboard/chatbots/${chatbot.id}`}>
               <Button variant="secondary" className="bg-white/20 hover:bg-white/30">Test Your Bot</Button>
             </Link>

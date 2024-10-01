@@ -40,13 +40,13 @@ const ConfigurableChatbot: React.FC<ConfigurableChatbotProps> = ({ chatbotId }) 
     if (config?.theme) {
       const themeConfig = config.theme as Prisma.JsonObject;
       setTheme(themeConfig?.theme as typeof defaultTheme || defaultTheme);
-      //@ts-ignore
       setOtherProps(themeConfig as any);
     }
   }, [config]);
 
   const containerStyle: React.CSSProperties = {
     display: 'flex',
+    flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
     minHeight: '100vh',
@@ -101,14 +101,16 @@ const ConfigurableChatbot: React.FC<ConfigurableChatbotProps> = ({ chatbotId }) 
             welcomeMessage={config?.name || 'Welcome'} 
             key={config?.id}
           />
-          <div ref={chatContainerRef} style={{ flex: 1, overflowY: 'auto', padding: '16px' }}>
-            <Messages 
-              chatbotId={chatbotId} 
-              theme={theme} 
-              welcomeMessage={otherProps?.widget?.welcomeMessage || ""}
-            />
+          <div className="flex-grow flex flex-col overflow-hidden">
+            <div ref={chatContainerRef} className="flex-grow overflow-y-auto p-4">
+              <Messages 
+                chatbotId={chatbotId} 
+                theme={theme} 
+                welcomeMessage={otherProps?.widget?.welcomeMessage || ""}
+              />
+            </div>
+            <ChatInput theme={theme} />
           </div>
-          <ChatInput theme={theme} />
         </ChatContextProvider>
       </div>
     </div>
