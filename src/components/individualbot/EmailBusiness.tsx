@@ -11,11 +11,11 @@ const EmailBusiness: React.FC<EmailBusinessProps> = ({ chatbotId, theme }) => {
   const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');
 
-  const sendEmailMutation = trpc.sendEmailToBusiness.useMutation();
+//   const sendEmailMutation = trpc.sendEmailToBusiness.useMutation();
 
   const handleSendEmail = async () => {
     if (subject.trim() && message.trim()) {
-      await sendEmailMutation.mutateAsync({ chatbotId, subject, message, email: '' });
+    //   await sendEmailMutation.mutateAsync({ chatbotId, subject, message, email: '' });
       setSubject('');
       setMessage('');
       alert('Email sent successfully!');

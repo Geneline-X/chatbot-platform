@@ -212,24 +212,16 @@ export const appRouter = router({
       data: {
         chatbotId,
         chatbotUserId,
-        messages: {
+        businessReplies: {
           create: {
             text: message,
-            isUserMessage: false,
-            chatbotUserId,
-            chatbotId,
+            sentBy: 'Business', // You might want to include the actual user who sent this
           },
         },
-          businessReplies: {
-            create: {
-              text: message,
-              sentBy: 'Business', // You might want to include the actual user who sent this
-            },
-          },
-        },
-      });
+      },
+    });
 
-      return interaction;
+    return interaction;
   }),
 
   // Update interaction (e.g., mark as resolved)

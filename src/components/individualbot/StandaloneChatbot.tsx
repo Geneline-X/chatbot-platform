@@ -9,6 +9,8 @@ import { ChatContextProvider } from './ChatContext';
 import Messages from './Messages';
 import { MyLoader } from '../MyLoader';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import BusinessReplies from './BusinessReplies';
 interface StandaloneChatbotProps {
   chatbotId: string;
 }
@@ -31,6 +33,7 @@ const StandaloneChatbot: React.FC<StandaloneChatbotProps> = ({ chatbotId }) => {
   });
 
   const chatContainerRef = useRef<HTMLDivElement>(null);
+  const [chatbotUserId, setChatbotUserId] = useState<string | null>(null);
 
   useEffect(() => {
     //@ts-ignore
@@ -42,6 +45,12 @@ const StandaloneChatbot: React.FC<StandaloneChatbotProps> = ({ chatbotId }) => {
     }
   }, [config]);
 
+  useEffect(() => {
+    // Here you would typically fetch or set the chatbotUserId
+    // For now, we'll just set a dummy value
+    setChatbotUserId('dummy-user-id');
+  }, []);
+
   const containerStyle: React.CSSProperties = {
     display: 'flex',
     flexDirection: 'column',
@@ -50,7 +59,6 @@ const StandaloneChatbot: React.FC<StandaloneChatbotProps> = ({ chatbotId }) => {
     backgroundColor: theme.backgroundColor,
     fontFamily: theme.font,
     fontSize: theme.fontSize,
-    color: theme.primaryColor,
     overflow: 'hidden',
   };
 
@@ -88,16 +96,33 @@ const StandaloneChatbot: React.FC<StandaloneChatbotProps> = ({ chatbotId }) => {
           welcomeMessage={config?.name || 'Welcome'}
           key={config?.id}
         />
-        <div style={contentStyle}>
-          <div ref={chatContainerRef} style={{ flex: 1, overflowY: 'auto', marginBottom: "16px"}}>
-            <Messages
-              chatbotId={chatbotId}
-              theme={theme}
-              welcomeMessage={otherProps?.widget?.welcomeMessage || "Welcome"}
-            />
-          </div>
-          <ChatInput theme={theme} />
-        </div>
+        <Tabs defaultValue="chat" className="flex-grow flex flex-col overflow-hidden">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="chat">AI Chat</TabsTrigger>
+            <TabsTrigger value="business-replies">Business Reply</TabsTrigger>
+          </TabsList>
+          <TabsContent value="chat" className="flex-grow flex flex-col overflow-hidden">
+            <div style={contentStyle}>
+              <div ref={chatContainerRef} style={{ flex: 1, overflowY: 'auto', marginBottom: "16px"}}>
+                <Messages
+                  chatbotId={chatbotId}
+                  theme={theme}
+                  welcomeMessage={otherProps?.widget?.welcomeMessage || "Welcome"}
+                />
+              </div>
+              <ChatInput theme={theme} />
+            </div>
+          </TabsContent>
+          <TabsContent value="business-replies" className="flex-grow overflow-y-auto">
+              {chatbotUserId && (
+                <BusinessReplies 
+                  chatbotId={chatbotId}
+                  chatbotUserId={chatbotUserId}
+                  theme={theme}
+                />
+              )}
+            </TabsContent>
+        </Tabs>
       </>
     );
   };

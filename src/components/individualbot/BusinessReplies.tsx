@@ -1,102 +1,101 @@
 "use client"
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useEffect, useRef, useMemo, useContext } from 'react';
 import { motion } from 'framer-motion';
-import { Send, User, Building2 } from 'lucide-react';
+import { Building2, Loader2 } from 'lucide-react';
+import { useInfiniteQuery } from '@tanstack/react-query';
+import { ChatContex } from './ChatContext';
 
 interface BusinessRepliesProps {
   chatbotId: string;
+  chatbotUserId: string;
   theme: any;
 }
 
-const dummyReplies = [
-  { id: 1, text: "Thank you for your inquiry. Our team will get back to you shortly.", sender: "business", timestamp: new Date(2023, 5, 1, 10, 30) },
-  { id: 2, text: "I have a question about your product pricing.", sender: "user", timestamp: new Date(2023, 5, 1, 11, 15) },
-  { id: 3, text: "Certainly! Our pricing starts at $19.99 per month. Would you like more details?", sender: "business", timestamp: new Date(2023, 5, 1, 11, 45) },
-  { id: 4, text: "Yes, please. Can you tell me about any discounts for annual subscriptions?", sender: "user", timestamp: new Date(2023, 5, 1, 12, 0) },
-  { id: 5, text: "Of course! We offer a 20% discount for annual subscriptions. This brings the price down to $191.90 per year, saving you $47.98.", sender: "business", timestamp: new Date(2023, 5, 1, 12, 30) },
-  ...Array.from({ length: 10 }, (_, i) => ({
-    id: i + 6,
-    text: `This is message ${i + 6} to demonstrate scrolling.`,
-    sender: i % 2 === 0 ? "user" : "business",
-    timestamp: new Date(2023, 5, 1, 13, i * 5)
-  }))
-];
-
-const BusinessReplies: React.FC<BusinessRepliesProps> = ({ chatbotId, theme }) => {
-  const [replies, setReplies] = useState(dummyReplies);
-  const [newReply, setNewReply] = useState('');
+const BusinessReplies: React.FC<BusinessRepliesProps> = ({ chatbotId, chatbotUserId, theme }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { email } = useContext(ChatContex);
+
+  const fetchBusinessReplies = async ({ pageParam = undefined }) => {
+    if (!email) {
+      throw new Error('Email is required');
+    }
+    const res = await fetch(`/api/getbusinessreply?email=${email}&cursor=${pageParam || ''}&limit=20`);
+    if (!res.ok) throw new Error('Failed to fetch business replies');
+    return res.json();
+  };
+
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    status,
+  } = useInfiniteQuery({
+    queryKey: ['businessReplies', chatbotUserId, email],
+    queryFn: fetchBusinessReplies,
+    getNextPageParam: (lastPage) => lastPage.nextCursor,
+    enabled: !!email, // Only run the query if email is available
+  });
+
+  const replies = useMemo(() => data?.pages.flatMap(page => page.replies) || [], [data]);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [replies]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  useEffect(scrollToBottom, [replies]);
-
-  const handleSendReply = () => {
-    if (newReply.trim()) {
-      const newReplyObj = {
-        id: replies.length + 1,
-        text: newReply,
-        sender: "user",
-        timestamp: new Date()
-      };
-      setReplies([...replies, newReplyObj]);
-      setNewReply('');
-    }
-  };
+  if (!email) return <div className="text-center text-gray-500">Email is required to fetch replies.</div>;
+  if (status === 'loading') return <div className="flex justify-center items-center h-64"><Loader2 className="h-8 w-8 animate-spin" style={{ color: theme.primaryColor }} /></div>;
+  if (status === 'error') return <div className="text-center" style={{ color: theme.errorColor }}>Error fetching replies</div>;
 
   return (
-    <div className="flex flex-col h-full bg-gray-100 rounded-lg shadow-inner p-4">
+    <div className="flex flex-col h-full rounded-lg shadow-inner p-4" style={{ backgroundColor: theme.backgroundColor }}>
       <div className="flex-grow overflow-y-auto mb-4 space-y-4">
-        {replies.map((reply, index) => (
-          <motion.div
-            key={reply.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: index * 0.1 }}
-            className={`flex ${reply.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-          >
-            <div className={`max-w-3/4 p-3 rounded-lg shadow ${
-              reply.sender === 'user' 
-                ? 'bg-blue-500 text-white' 
-                : 'bg-white text-gray-800'
-            }`}>
-              <div className="flex items-center mb-2">
-                {reply.sender === 'user' 
-                  ? <User className="w-4 h-4 mr-2" /> 
-                  : <Building2 className="w-4 h-4 mr-2" />
-                }
-                <span className="font-semibold">{reply.sender === 'user' ? 'You' : 'Business'}</span>
+        {replies.length === 0 ? (
+          <p className="text-center" style={{ color: theme.secondaryTextColor }}>No business replies yet.</p>
+        ) : (
+          replies.map((reply, index) => (
+            <motion.div
+              key={reply.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: index * 0.1 }}
+              className="flex justify-center w-full"
+            >
+              <div className="w-full p-3 rounded-lg shadow" style={{ backgroundColor: theme.primaryColor, }}>
+                <div className="flex items-center mb-2 justify-center">
+                  <Building2 className="w-4 h-4 mr-2" />
+                  <span className="font-semibold">Business</span>
+                </div>
+                <p className="text-center text-lg">{reply.text}</p>
+                <small className="text-sm opacity-75 mt-2 block text-center">
+                  {new Date(reply.timestamp).toLocaleString()}
+                </small>
               </div>
-              <p>{reply.text}</p>
-              <small className="text-xs opacity-75 mt-1 block">
-                {reply.timestamp.toLocaleString()}
-              </small>
-            </div>
-          </motion.div>
-        ))}
+            </motion.div>
+          ))
+        )}
         <div ref={messagesEndRef} />
       </div>
-      <div className="mt-auto">
-        <div className="flex items-center bg-white rounded-lg shadow-md">
-          <input
-            type="text"
-            value={newReply}
-            onChange={(e) => setNewReply(e.target.value)}
-            placeholder="Type your reply..."
-            className="flex-grow p-3 rounded-l-lg focus:outline-none"
-            style={{ backgroundColor: theme.secondaryColor, color: theme.primaryColor }}
-          />
-          <button
-            onClick={handleSendReply}
-            className="p-3 rounded-r-lg transition-colors duration-200 ease-in-out focus:outline-none"
-            style={{ backgroundColor: theme.primaryColor, color: theme.secondaryColor }}
+      {hasNextPage && (
+        <div className="flex justify-center">
+          <button 
+            onClick={() => fetchNextPage()} 
+            disabled={isFetchingNextPage}
+            className="px-4 py-2 rounded-lg transition-colors"
+            style={{ 
+              backgroundColor: isFetchingNextPage ? theme.disabledColor : theme.primaryColor, 
+              color: theme.primaryTextColor,
+              cursor: isFetchingNextPage ? 'not-allowed' : 'pointer'
+            }}
           >
-            <Send className="w-5 h-5" />
+            {isFetchingNextPage ? <Loader2 className='w-4 h-4 animate-spin'/> : 'Load More'}
           </button>
         </div>
-      </div>
+      )}
     </div>
   );
 };

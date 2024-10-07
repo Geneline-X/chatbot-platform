@@ -3,6 +3,7 @@ import React from 'react';
 import { ChatbotUser } from '@prisma/client';
 import { Button } from '@/components/ui/button';
 import { User } from 'lucide-react';
+import { formatDistanceToNow } from 'date-fns';
 
 interface ChatbotUsersListProps {
   users: ChatbotUser[];
@@ -34,7 +35,9 @@ const ChatbotUsersList: React.FC<ChatbotUsersListProps> = ({
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-gray-900 truncate">{user.email}</p>
-                <p className="text-sm text-gray-500 truncate">Last active: 2 hours ago</p>
+                <p className="text-sm text-gray-500 truncate">
+                  Last active: {formatDistanceToNow(new Date(user.updatedAt), { addSuffix: true })}
+                </p>
               </div>
             </div>
           </li>
